@@ -157,10 +157,10 @@ int main(int argc, char* args[]) {
                 startGame = true; // Signal to start the game in the main loop
             }
         } else if (gameState == GameState::PLAYING) {
-            if (!gpioRead(GPIO_BTN_UP)) player.facing = Direction::UP; break;
-            if (!gpioRead(GPIO_BTN_DOWN)) player.facing = Direction::DOWN; break;
-            if (!gpioRead(GPIO_BTN_LEFT)) player.facing = Direction::LEFT; break;
-            if (!gpioRead(GPIO_BTN_RIGHT)) player.facing = Direction::RIGHT; break;
+            if (!gpioRead(GPIO_BTN_UP)) player.facing = Direction::UP;
+            if (!gpioRead(GPIO_BTN_DOWN)) player.facing = Direction::DOWN;
+            if (!gpioRead(GPIO_BTN_LEFT)) player.facing = Direction::LEFT;
+            if (!gpioRead(GPIO_BTN_RIGHT)) player.facing = Direction::RIGHT;
         }
 
         // --- State Logic ---
