@@ -137,16 +137,31 @@ int main(int argc, char* args[]) {
     // --- Game Loop ---
     while (running) {
         // not condition due to PULL-UP resistor
-        if (!gpioRead(GPIO_BTN_LEFT)) printf("LEFT PRESSED!\n");
-        if (!gpioRead(GPIO_BTN_UP)) printf("UPPRESSED!\n");
-        if (!gpioRead(GPIO_BTN_RIGHT)) printf("RIGHT PRESSED!\n");
-        if (!gpioRead(GPIO_BTN_DOWN)) printf("DOWN PRESSED!\n");
-        if (!gpioRead(GPIO_BTN_ACTION)) printf("ACTION PRESSED!\n");
+        // if (!gpioRead(GPIO_BTN_LEFT)) printf("LEFT PRESSED!\n");
+        // if (!gpioRead(GPIO_BTN_UP)) printf("UPPRESSED!\n");
+        // if (!gpioRead(GPIO_BTN_RIGHT)) printf("RIGHT PRESSED!\n");
+        // if (!gpioRead(GPIO_BTN_DOWN)) printf("DOWN PRESSED!\n");
+        // if (!gpioRead(GPIO_BTN_ACTION)) printf("ACTION PRESSED!\n");
 
         startGame = false; // Reset start trigger each frame
 
         // --- Input Handling (Handles state transitions) ---
         HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame);
+        if (gameState == GameState::MENU) {
+            if (!gpioRead(GPIO_BTN_UP)) menuSelectedOption = (menuSelectedOption - 1 + 3) % 3; // Cycle up (0, 2, 1, 0...)
+            if (!gpioRead(GPIO_BTN_DOWN)) menuSelectedOption = (menuSelectedOption + 1) % 3; // Cycle down (0, 1, 2, 0...)
+            if (!gpioRead(GPIO_BTN_ACTION)) {
+                if (menuSelectedOption == 0) difficulty = Difficulty::EASY;
+                else if (menuSelectedOption == 1) difficulty = Difficulty::MEDIUM;
+                else difficulty = Difficulty::HARD;
+                startGame = true; // Signal to start the game in the main loop
+            }
+        } else if (gameState == GameState::PLAYING) {
+            if (!gpioRead(GPIO_BTN_UP)) player.facing = Direction::UP; break;
+            if (!gpioRead(GPIO_BTN_DOWN)) player.facing = Direction::DOWN; break;
+            if (!gpioRead(GPIO_BTN_LEFT)) player.facing = Direction::LEFT; break;
+            if (!gpioRead(GPIO_BTN_RIGHT)) player.facing = Direction::RIGHT; break;
+        }
 
         // --- State Logic ---
         switch (gameState) {
