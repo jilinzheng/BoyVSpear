@@ -5,6 +5,8 @@
 #include <cstdlib> // For rand() and srand()
 #include <ctime>   // For time()
 #include <cmath>   // For abs()
+#include "pigpio.h"
+
 
 // --- Configuration ---
 const int SCREEN_WIDTH = 272;
@@ -18,6 +20,11 @@ const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // CH
                                                                        // Common paths: Windows: "C:/Windows/Fonts/arial.ttf"
                                                                        // macOS: "/Library/Fonts/Arial.ttf"
                                                                        // Linux: Check /usr/share/fonts/ or similar
+const int GPIO_BTN_LEFT = 16;
+const int GPIO_BTN_UP = 20;
+const int GPIO_BTN_RIGHT = 21;
+const int GPIO_BTN_DOWN = 19;
+const int GPIO_BTN_ACTION = 26;
 
 // --- Enums ---
 enum class GameState {
@@ -70,6 +77,24 @@ GameSettings GetSettingsForDifficulty(Difficulty difficulty);
 
 // --- Main Function ---
 int main(int argc, char* args[]) {
+    // set up GPIO
+    int status = gpioInitialise();
+    if (status < 0) {
+        fprintf(stderr, "pigpio initialization failed.\n");
+        return 1;
+    }
+    gpioSetMode(GPIO_BTN_LEFT, PI_INPUT);
+    gpioSetMode(GPIO_BTN_UP, PI_INPUT);
+    gpioSetMode(GPIO_BTN_RIGHT, PI_INPUT);
+    gpioSetMode(GPIO_BTN_DOWN, PI_INPUT);
+    gpioSetMode(GPIO_BTN_ACTION, PI_INPUT);
+    gpioSetPullUpDown(GPIO_BTN_LEFT, PI_PUD_DOWN);
+    gpioSetPullUpDown(GPIO_BTN_UP, PI_PUD_DOWN);
+    gpioSetPullUpDown(GPIO_BTN_RIGHT, PI_PUD_DOWN);
+    gpioSetPullUpDown(GPIO_BTN_DOWN, PI_PUD_DOWN);
+    gpioSetPullUpDown(GPIO_BTN_ACTION, PI_PUD_DOWN);
+
+    // set up window and renderer
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
     TTF_Font* font = nullptr;
@@ -110,6 +135,12 @@ int main(int argc, char* args[]) {
 
     // --- Game Loop ---
     while (running) {
+        if (gpioRead(GPIO_BTN_LEFT)) printf("LEFT PRESSED!");
+        if (gpioRead(GPIO_BTN_UP)) printf("UPPRESSED!");
+        if (gpioRead(GPIO_BTN_RIGHT)) printf("RIGHT PRESSED!");
+        if (gpioRead(GPIO_BTN_DOWN)) printf("DOWN PRESSED!");
+        if (gpioRead(GPIO_BTN_ACTION)) printf("ACTION PRESSED!");
+
         startGame = false; // Reset start trigger each frame
 
         // --- Input Handling (Handles state transitions) ---
@@ -159,6 +190,7 @@ int main(int argc, char* args[]) {
 
     // --- Cleanup ---
     CloseSDL(window, renderer, font);
+    gpioTerminate();
 
     return 0;
 }
