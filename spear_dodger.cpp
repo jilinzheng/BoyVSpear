@@ -88,11 +88,12 @@ int main(int argc, char* args[]) {
     gpioSetMode(GPIO_BTN_RIGHT, PI_INPUT);
     gpioSetMode(GPIO_BTN_DOWN, PI_INPUT);
     gpioSetMode(GPIO_BTN_ACTION, PI_INPUT);
-    gpioSetPullUpDown(GPIO_BTN_LEFT, PI_PUD_DOWN);
-    gpioSetPullUpDown(GPIO_BTN_UP, PI_PUD_DOWN);
-    gpioSetPullUpDown(GPIO_BTN_RIGHT, PI_PUD_DOWN);
-    gpioSetPullUpDown(GPIO_BTN_DOWN, PI_PUD_DOWN);
-    gpioSetPullUpDown(GPIO_BTN_ACTION, PI_PUD_DOWN);
+
+    gpioSetPullUpDown(GPIO_BTN_LEFT, PI_PUD_UP);
+    gpioSetPullUpDown(GPIO_BTN_UP, PI_PUD_UP);
+    gpioSetPullUpDown(GPIO_BTN_RIGHT, PI_PUD_UP);
+    gpioSetPullUpDown(GPIO_BTN_DOWN, PI_PUD_UP);
+    gpioSetPullUpDown(GPIO_BTN_ACTION, PI_PUD_UP);
 
     // set up window and renderer
     SDL_Window* window = nullptr;
@@ -135,11 +136,12 @@ int main(int argc, char* args[]) {
 
     // --- Game Loop ---
     while (running) {
-        if (gpioRead(GPIO_BTN_LEFT)) printf("LEFT PRESSED!");
-        if (gpioRead(GPIO_BTN_UP)) printf("UPPRESSED!");
-        if (gpioRead(GPIO_BTN_RIGHT)) printf("RIGHT PRESSED!");
-        if (gpioRead(GPIO_BTN_DOWN)) printf("DOWN PRESSED!");
-        if (gpioRead(GPIO_BTN_ACTION)) printf("ACTION PRESSED!");
+        // not condition due to PULL-UP resistor
+        if (!gpioRead(GPIO_BTN_LEFT)) printf("LEFT PRESSED!\n");
+        if (!gpioRead(GPIO_BTN_UP)) printf("UPPRESSED!\n");
+        if (!gpioRead(GPIO_BTN_RIGHT)) printf("RIGHT PRESSED!\n");
+        if (!gpioRead(GPIO_BTN_DOWN)) printf("DOWN PRESSED!\n");
+        if (!gpioRead(GPIO_BTN_ACTION)) printf("ACTION PRESSED!\n");
 
         startGame = false; // Reset start trigger each frame
 
