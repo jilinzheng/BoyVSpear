@@ -25,6 +25,12 @@ const int GPIO_BTN_UP = 20;
 const int GPIO_BTN_RIGHT = 21;
 const int GPIO_BTN_DOWN = 19;
 const int GPIO_BTN_ACTION = 26;
+static bool prev_gpio_up = true;    // Assume buttons start unpressed (HIGH with pull-up)
+static bool prev_gpio_down = true;
+static bool prev_gpio_left = true;
+static bool prev_gpio_right = true;
+static bool prev_gpio_action = true;
+
 
 // --- Enums ---
 enum class GameState {
@@ -58,6 +64,7 @@ struct GameSettings {
     int spearSpeed;
     int spawnRate;
 };
+
 
 // --- Function Prototypes ---
 bool InitializeSDL(SDL_Window*& window, SDL_Renderer*& renderer, TTF_Font*& font);
@@ -147,21 +154,92 @@ int main(int argc, char* args[]) {
 
         // --- Input Handling (Handles state transitions) ---
         HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame);
+        // // GPIO instead of SDL handling
+        // if (gameState == GameState::MENU) {
+        //     if (!gpioRead(GPIO_BTN_UP)) menuSelectedOption = (menuSelectedOption - 1 + 3) % 3; // Cycle up (0, 2, 1, 0...)
+        //     if (!gpioRead(GPIO_BTN_DOWN)) menuSelectedOption = (menuSelectedOption + 1) % 3; // Cycle down (0, 1, 2, 0...)
+        //     if (!gpioRead(GPIO_BTN_ACTION)) {
+        //         if (menuSelectedOption == 0) difficulty = Difficulty::EASY;
+        //         else if (menuSelectedOption == 1) difficulty = Difficulty::MEDIUM;
+        //         else difficulty = Difficulty::HARD;
+        //         startGame = true; // Signal to start the game in the main loop
+        //     }
+        // } else if (gameState == GameState::PLAYING) {
+        //     if (!gpioRead(GPIO_BTN_UP)) player.facing = Direction::UP;
+        //     if (!gpioRead(GPIO_BTN_DOWN)) player.facing = Direction::DOWN;
+        //     if (!gpioRead(GPIO_BTN_LEFT)) player.facing = Direction::LEFT;
+        //     if (!gpioRead(GPIO_BTN_RIGHT)) player.facing = Direction::RIGHT;
+        // }
+
+        // --- Add Debouncing Logic ---
+        bool current_gpio_up = gpioRead(GPIO_BTN_UP);
+        bool current_gpio_down = gpioRead(GPIO_BTN_DOWN);
+        bool current_gpio_left = gpioRead(GPIO_BTN_LEFT);
+        bool current_gpio_right = gpioRead(GPIO_BTN_RIGHT);
+        bool current_gpio_action = gpioRead(GPIO_BTN_ACTION);
+
+        // Check for a "rising edge" (transition from unpressed to pressed) for each button
+        bool gpio_up_pressed = !current_gpio_up && prev_gpio_up;
+        bool gpio_down_pressed = !current_gpio_down && prev_gpio_down;
+        bool gpio_left_pressed = !current_gpio_left && prev_gpio_left;
+        bool gpio_right_pressed = !current_gpio_right && prev_gpio_right;
+        bool gpio_action_pressed = !current_gpio_action && prev_gpio_action;
+
+        // --- Update Game Logic based on Debounced Presses ---
+
+        // GPIO instead of SDL handling (Modified to use debounced presses)
         if (gameState == GameState::MENU) {
-            if (!gpioRead(GPIO_BTN_UP)) menuSelectedOption = (menuSelectedOption - 1 + 3) % 3; // Cycle up (0, 2, 1, 0...)
-            if (!gpioRead(GPIO_BTN_DOWN)) menuSelectedOption = (menuSelectedOption + 1) % 3; // Cycle down (0, 1, 2, 0...)
-            if (!gpioRead(GPIO_BTN_ACTION)) {
+            // Menu navigation only on a distinct button press
+            if (gpio_up_pressed) {
+                menuSelectedOption = (menuSelectedOption - 1 + 3) % 3; // Cycle up
+            }
+            if (gpio_down_pressed) {
+                menuSelectedOption = (menuSelectedOption + 1) % 3; // Cycle down
+            }
+            // Menu selection confirmation on action button press
+            if (gpio_action_pressed) {
                 if (menuSelectedOption == 0) difficulty = Difficulty::EASY;
                 else if (menuSelectedOption == 1) difficulty = Difficulty::MEDIUM;
                 else difficulty = Difficulty::HARD;
                 startGame = true; // Signal to start the game in the main loop
             }
         } else if (gameState == GameState::PLAYING) {
-            if (!gpioRead(GPIO_BTN_UP)) player.facing = Direction::UP;
-            if (!gpioRead(GPIO_BTN_DOWN)) player.facing = Direction::DOWN;
-            if (!gpioRead(GPIO_BTN_LEFT)) player.facing = Direction::LEFT;
-            if (!gpioRead(GPIO_BTN_RIGHT)) player.facing = Direction::RIGHT;
+            // For continuous movement in PLAYING state, you might want to use the *current* state
+            // or a combination. Using the debounced *press* for facing direction change
+            // means you only change direction on a new press, not while holding.
+            // If you want continuous movement while holding the button, you would use
+            // the `current_gpio_...` variables here instead of the `..._pressed` ones.
+            // Let's use the current state for movement facing, as that's more typical for this game style.
+            // The debounced presses are still useful for menu navigation and actions.
+
+            if (!current_gpio_up) player.facing = Direction::UP; // Button held down (LOW)
+            else if (!current_gpio_down) player.facing = Direction::DOWN; // Button held down (LOW)
+            else if (!current_gpio_left) player.facing = Direction::LEFT; // Button held down (LOW)
+            else if (!current_gpio_right) player.facing = Direction::RIGHT; // Button held down (LOW)
+            // If multiple are held, the order of these checks determines priority.
+            // If none are held, player.facing remains the last set direction.
+
+            // Example: Use action button to return to menu during gameplay (debounced press)
+            if (gpio_action_pressed) {
+                gameState = GameState::MENU;
+                // Optionally reset game state here or when re-entering PLAYING
+            }
+
+        } else if (gameState == GameState::GAME_OVER) {
+            // Return to menu on action button press (debounced)
+            if (gpio_action_pressed) {
+                gameState = GameState::MENU;
+                menuSelectedOption = 0; // Reset menu selection
+            }
         }
+
+        // --- IMPORTANT: Update Previous State for Next Frame ---
+        // This must happen after you've used the current states for this frame's logic.
+        prev_gpio_up = current_gpio_up;
+        prev_gpio_down = current_gpio_down;
+        prev_gpio_left = current_gpio_left;
+        prev_gpio_right = current_gpio_right;
+        prev_gpio_action = current_gpio_action;
 
         // --- State Logic ---
         switch (gameState) {
@@ -354,7 +432,6 @@ void HandleInput(bool& running, Player& player, GameState& gameState, int& selec
     }
 }
 
-
 // Update spear positions and check for blocks or game over
 void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings) {
     // Update spear positions and check for blocking/game over
@@ -421,7 +498,6 @@ bool CheckSpearInBlockZone(const Spear& spear, const SDL_Rect& blockZone) {
     return (tipX >= blockZone.x && tipX < blockZone.x + blockZone.w &&
             tipY >= blockZone.y && tipY < blockZone.y + blockZone.h);
 }
-
 
 // Spawn a new spear from a random edge, targeting the center
 void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings) {
@@ -551,7 +627,6 @@ void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font) {
      RenderText(renderer, font, "GAME OVER", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20, red);
      RenderText(renderer, font, "Press any key to return to menu", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 20, white);
 }
-
 
 // Helper function to render text centered at x, y
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color) {
