@@ -1,4 +1,4 @@
-#include "Character.h"
+#include "assets.h"
 // Character body height/width reference
 
 // Helper function to draw a circle outline using points
@@ -112,4 +112,21 @@ void RenderPlayerCharacter(SDL_Renderer* renderer, const Player& player, bool is
         }
     }
 }
+
+
+void RenderSpear(SDL_Renderer* renderer, const Spear& spear) {
+    int x = spear.rect.x, y = spear.rect.y, w = spear.rect.w, h = spear.rect.h;
+    SDL_Vertex vertex[3];
+    vertex[0].color = vertex[1].color = vertex[2].color = {0, 180, 255, 255}; // Spear color
+
+    switch (spear.originDirection) {
+        case Direction::UP:    vertex[0].position = {(float)x, (float)y}; vertex[1].position = {(float)(x + w), (float)y}; vertex[2].position = {(float)(x + w / 2), (float)(y + h)}; break;
+        case Direction::DOWN:  vertex[0].position = {(float)x, (float)(y + h)}; vertex[1].position = {(float)(x + w), (float)(y + h)}; vertex[2].position = {(float)(x + w / 2), (float)y}; break;
+        case Direction::LEFT:  vertex[0].position = {(float)x, (float)y}; vertex[1].position = {(float)x, (float)(y + h)}; vertex[2].position = {(float)(x + w), (float)(y + h / 2)}; break;
+        case Direction::RIGHT: vertex[0].position = {(float)(x + w), (float)y}; vertex[1].position = {(float)(x + w), (float)(y + h)}; vertex[2].position = {(float)x, (float)(y + h / 2)}; break;
+        case Direction::NONE: return;
+    }
+    SDL_RenderGeometry(renderer, nullptr, vertex, 3, nullptr, 0);
+}
+
 

@@ -5,7 +5,8 @@
 #include <SDL2/SDL_ttf.h> // Include SDL_ttf for text rendering
 #include <vector>
 #include <string>
-#include "Character.h"
+#include "menu.h"
+#include "assets.h"
 #include <cstdlib> // For rand() and srand()
 #include <cmath>   // For M_PI, sin, cos
 
@@ -20,30 +21,24 @@ enum class Difficulty {
     EASY, MEDIUM, HARD
 };
 
-struct Dodge_Spear {
-    SDL_Rect rect;
-    Direction originDirection;
-    float x, y;
-    int speed;
-};
-
 struct GameSettings {
     int spearSpeed;
     int spawnRate;
+    int spearMult;
 };
 
 // --- Function Prototypes ---
 void CloseSDL(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
 void HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
-void ResetGame(Player& player, std::vector<Dodge_Spear>& spears, GameState& gameState, const GameSettings& settings);
-void UpdateGame(Player& player, std::vector<Dodge_Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings);
-void SpawnSpear(std::vector<Dodge_Spear>& spears, const GameSettings& settings);
-void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Dodge_Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
+void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings);
+void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings);
+void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings);
+void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
 void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption);
 void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font);
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
-void RenderSpear(SDL_Renderer* renderer, const Dodge_Spear& spear);
-bool CheckSpearInBlockZone(const Dodge_Spear& spear, const SDL_Rect& blockZone);
+void RenderSpear(SDL_Renderer* renderer, const Spear& spear);
+bool CheckSpearInBlockZone(const Spear& spear, const SDL_Rect& blockZone);
 GameSettings GetSettingsForDifficulty(Difficulty difficulty);
 int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer);
 

@@ -2,12 +2,8 @@
 #include <ctime>   // For time()
 
 
-const int SCREEN_WIDTH = 277;
-const int SCREEN_HEIGHT = 277;
 int RETURN_TO_MENU = 0; // Flag to return to menu
-const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 10; // Keep block zone relative
-const int SPEAR_BASE_WIDTH = 10;
-const int SPEAR_LENGTH = 40;
+const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20; // Keep block zone relative
 const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // CHANGE THIS to a valid TTF font path!
 
 // --- Main Function ---
@@ -51,7 +47,7 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
     blockZone.x = static_cast<int>(player.x - BLOCK_ZONE_SIZE / 2.0f);
     blockZone.y = static_cast<int>(player.y - BLOCK_ZONE_SIZE / 2.0f);
 
-    std::vector<Dodge_Spear> spears;
+    std::vector<Spear> spears;
 
     // --- Game Loop ---
     while (running) {
@@ -65,6 +61,8 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
                     currentSettings = GetSettingsForDifficulty(difficulty);
                     if (RETURN_TO_MENU==1)
                     {
+                        startGame = false;
+                        RETURN_TO_MENU = 0;
                         return -1;
                     }
                     ResetGame(player, spears, gameState, currentSettings);
@@ -80,7 +78,7 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
                     UpdateGame(player, spears, gameOverFlag, blockZone, currentSettings);
 
                     frameCount++;
-                    if (frameCount >= currentSettings.spawnRate) {
+                    if (frameCount >= currentSettings.spawnRate/ currentSettings.spearMult) {
                         SpawnSpear(spears, currentSettings);
                         frameCount = 0;
                     }
@@ -111,9 +109,9 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
 GameSettings GetSettingsForDifficulty(Difficulty difficulty) {
     GameSettings settings;
     switch (difficulty) {
-        case Difficulty::EASY:   settings.spearSpeed = 2; settings.spawnRate = 70; break;
-        case Difficulty::MEDIUM: settings.spearSpeed = 3; settings.spawnRate = 50; break;
-        case Difficulty::HARD:   settings.spearSpeed = 5; settings.spawnRate = 35; break;
+        case Difficulty::EASY:   settings.spearSpeed = 2; settings.spawnRate = 70; settings.spearMult = 1; break;
+        case Difficulty::MEDIUM: settings.spearSpeed = 3; settings.spawnRate = 50; settings.spearMult = 2; break;
+        case Difficulty::HARD:   settings.spearSpeed = 4; settings.spawnRate = 40; settings.spearMult = 3; break;
     }
     return settings;
 }
@@ -126,7 +124,7 @@ void CloseSDL(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
     SDL_Quit();
 }
 
-void ResetGame(Player& player, std::vector<Dodge_Spear>& spears, GameState& gameState, const GameSettings& settings) {
+void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings) {
     player.x = static_cast<float>(SCREEN_WIDTH / 2);
     player.y = static_cast<float>(SCREEN_HEIGHT / 2);
     player.rect.x = static_cast<int>(player.x - player.rect.w / 2.0f);
@@ -163,7 +161,6 @@ void HandleInput(bool& running, Player& player, GameState& gameState, int& selec
                     case SDLK_DOWN:  case SDLK_s: player.facing = Direction::DOWN; break;
                     case SDLK_LEFT:  case SDLK_a: player.facing = Direction::LEFT; break;
                     case SDLK_RIGHT: case SDLK_d: player.facing = Direction::RIGHT; break;
-                    case SDLK_ESCAPE: gameState = GameState::MENU; break;
                  }
             }
         } else if (gameState == GameState::GAME_OVER) {
@@ -175,7 +172,7 @@ void HandleInput(bool& running, Player& player, GameState& gameState, int& selec
     }
 }
 
-void UpdateGame(Player& player, std::vector<Dodge_Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings) {
+void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings) {
     for (int i = spears.size() - 1; i >= 0; --i) {
         // Move spear
         switch (spears[i].originDirection) {
@@ -205,7 +202,7 @@ void UpdateGame(Player& player, std::vector<Dodge_Spear>& spears, bool& gameOver
     }
 }
 
-bool CheckSpearInBlockZone(const Dodge_Spear& spear, const SDL_Rect& blockZone) {
+bool CheckSpearInBlockZone(const Spear& spear, const SDL_Rect& blockZone) {
     int tipX = spear.rect.x, tipY = spear.rect.y;
     switch (spear.originDirection) {
         case Direction::UP:    tipX = spear.rect.x + spear.rect.w / 2; tipY = spear.rect.y + spear.rect.h; break;
@@ -218,8 +215,8 @@ bool CheckSpearInBlockZone(const Dodge_Spear& spear, const SDL_Rect& blockZone) 
             tipY >= blockZone.y && tipY < blockZone.y + blockZone.h);
 }
 
-void SpawnSpear(std::vector<Dodge_Spear>& spears, const GameSettings& settings) {
-    Dodge_Spear newSpear;
+void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings) {
+    Spear newSpear;
     newSpear.speed = settings.spearSpeed;
     int side = rand() % 4;
     int width, height;
@@ -243,7 +240,7 @@ void SpawnSpear(std::vector<Dodge_Spear>& spears, const GameSettings& settings) 
     spears.push_back(newSpear);
 }
 
-void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Dodge_Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag) {
+void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -269,47 +266,3 @@ void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, co
 }
 
 
-void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color) {
-    if (!font) return;
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
-    if (!surface) return;
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!texture) { SDL_FreeSurface(surface); return; }
-    SDL_Rect destRect = { x - surface->w / 2, y - surface->h / 2, surface->w, surface->h };
-    SDL_RenderCopy(renderer, texture, NULL, &destRect);
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(surface);
-}
-
-void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption) {
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Color yellow = {255, 255, 0, 255};
-    RenderText(renderer, font, "Select Difficulty", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 - 30, white);
-    RenderText(renderer, font, "Easy",   SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 30, (selectedOption == 0) ? yellow : white);
-    RenderText(renderer, font, "Medium", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 10, (selectedOption == 1) ? yellow : white);
-    RenderText(renderer, font, "Hard",   SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 50, (selectedOption == 2) ? yellow : white);
-    RenderText(renderer, font, "Back",   SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 90, (selectedOption == 3) ? yellow : white);
-}
-
-void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font) {
-    SDL_Color red = {255, 50, 50, 255};
-    SDL_Color white = {255, 255, 255, 255};
-    RenderText(renderer, font, "GAME OVER", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20, red);
-    RenderText(renderer, font, "Press any key to return to menu", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 20, white);
-}
-
-
-void RenderSpear(SDL_Renderer* renderer, const Dodge_Spear& spear) {
-    int x = spear.rect.x, y = spear.rect.y, w = spear.rect.w, h = spear.rect.h;
-    SDL_Vertex vertex[3];
-    vertex[0].color = vertex[1].color = vertex[2].color = {0, 180, 255, 255}; // Spear color
-
-    switch (spear.originDirection) {
-        case Direction::UP:    vertex[0].position = {(float)x, (float)y}; vertex[1].position = {(float)(x + w), (float)y}; vertex[2].position = {(float)(x + w / 2), (float)(y + h)}; break;
-        case Direction::DOWN:  vertex[0].position = {(float)x, (float)(y + h)}; vertex[1].position = {(float)(x + w), (float)(y + h)}; vertex[2].position = {(float)(x + w / 2), (float)y}; break;
-        case Direction::LEFT:  vertex[0].position = {(float)x, (float)y}; vertex[1].position = {(float)x, (float)(y + h)}; vertex[2].position = {(float)(x + w), (float)(y + h / 2)}; break;
-        case Direction::RIGHT: vertex[0].position = {(float)(x + w), (float)y}; vertex[1].position = {(float)(x + w), (float)(y + h)}; vertex[2].position = {(float)x, (float)(y + h / 2)}; break;
-        case Direction::NONE: return;
-    }
-    SDL_RenderGeometry(renderer, nullptr, vertex, 3, nullptr, 0);
-}

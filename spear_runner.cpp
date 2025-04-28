@@ -1,13 +1,10 @@
 #include "spear_runner.h"
-#include "Character.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <vector>
+#include "assets.h"
 #include <cstdlib>
 #include <ctime>
 
-static const int SCREEN_WIDTH = 277;
-static const int SCREEN_HEIGHT = 277;
+static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // CHANGE THIS to a valid TTF font path!
+
 
 RunnerSettings GetSettingsForDifficulty(SpearRunnerDifficulty difficulty) {
     RunnerSettings settings;
@@ -22,6 +19,14 @@ RunnerSettings GetSettingsForDifficulty(SpearRunnerDifficulty difficulty) {
 
 int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
     srand(time(0));
+    TTF_Font* font = nullptr;
+    font = TTF_OpenFont(FONT_PATH, 28);
+    if (!font) {
+        printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
+        printf("Ensure the path '%s' is correct.\n", FONT_PATH);
+        SDL_DestroyRenderer(renderer); SDL_DestroyWindow(window); TTF_Quit(); SDL_Quit();
+        return false;
+    }
 
     SpearRunnerGameState gameState = SpearRunnerGameState::MENU;
     int selectedOption = 1; // 0=Easy, 1=Medium, 2=Hard, 3=Back
@@ -98,20 +103,20 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
             if (frameCount >= settings.spawnRate) {
                 Spear newSpear;
                 int side = rand() % 4;
-                if (side == 0) { newSpear.direction = SpearDirection::DOWN; newSpear.rect = {rand() % SCREEN_WIDTH, -15, 5, 15}; }
-                else if (side == 1) { newSpear.direction = SpearDirection::UP; newSpear.rect = {rand() % SCREEN_WIDTH, SCREEN_HEIGHT, 5, 15}; }
-                else if (side == 2) { newSpear.direction = SpearDirection::RIGHT; newSpear.rect = {-15, rand() % SCREEN_HEIGHT, 15, 5}; }
-                else { newSpear.direction = SpearDirection::LEFT; newSpear.rect = {SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 15, 5}; }
+                if (side == 0) { newSpear.originDirection = Direction::DOWN; newSpear.rect = {rand() % SCREEN_WIDTH, SCREEN_HEIGHT, 5, 15}; }
+                else if (side == 1) { newSpear.originDirection = Direction::UP; newSpear.rect = {rand() % SCREEN_WIDTH, -15, 5, 15}; }
+                else if (side == 2) { newSpear.originDirection = Direction::RIGHT; newSpear.rect = {SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 15, 5}; }
+                else { newSpear.originDirection = Direction::LEFT; newSpear.rect = { -15, rand() % SCREEN_HEIGHT, 15, 5}; }
                 spears.push_back(newSpear);
                 frameCount = 0;
             }
 
             for (auto& spear : spears) {
-                switch (spear.direction) {
-                    case SpearDirection::UP: spear.rect.y -= settings.spearSpeed; break;
-                    case SpearDirection::DOWN: spear.rect.y += settings.spearSpeed; break;
-                    case SpearDirection::LEFT: spear.rect.x -= settings.spearSpeed; break;
-                    case SpearDirection::RIGHT: spear.rect.x += settings.spearSpeed; break;
+                switch (spear.originDirection) {
+                    case Direction::UP: spear.rect.y += settings.spearSpeed; break;
+                    case Direction::DOWN: spear.rect.y -= settings.spearSpeed; break;
+                    case Direction::LEFT: spear.rect.x += settings.spearSpeed; break;
+                    case Direction::RIGHT: spear.rect.x -= settings.spearSpeed; break;
                 }
             }
 
@@ -136,46 +141,16 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
         SDL_RenderClear(renderer);
 
         if (gameState == SpearRunnerGameState::MENU) {
-            SDL_Color white = {255, 255, 255, 255};
-            SDL_Color yellow = {255, 255, 0, 255};
-            TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24);
-            if (font) {
-                SDL_Surface* surface = TTF_RenderText_Blended(font, "Select Difficulty", white);
-                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-                SDL_Rect rect = {SCREEN_WIDTH / 2 - surface->w / 2, SCREEN_HEIGHT / 4 - 30, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &rect);
-                SDL_FreeSurface(surface);
-                SDL_DestroyTexture(texture);
-
-                const char* options[4] = {"Easy", "Medium", "Hard", "Back"};
-                for (int i = 0; i < 4; ++i) {
-                    surface = TTF_RenderText_Blended(font, options[i], i == selectedOption ? yellow : white);
-                    texture = SDL_CreateTextureFromSurface(renderer, surface);
-                    rect = {SCREEN_WIDTH / 2 - surface->w / 2, SCREEN_HEIGHT / 2 + i * 30 - 60, surface->w, surface->h};
-                    SDL_RenderCopy(renderer, texture, NULL, &rect);
-                    SDL_FreeSurface(surface);
-                    SDL_DestroyTexture(texture);
-                }
-                TTF_CloseFont(font);
+            RenderMenu(renderer, font, selectedOption);
             }
-        } else {
+         else {
             RenderPlayerCharacter(renderer, player, gameOver, 0);
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
             for (auto& spear : spears) {
-                SDL_RenderFillRect(renderer, &spear.rect);
+                RenderSpear(renderer, spear); // Draw spears
             }
             if (gameState == SpearRunnerGameState::GAME_OVER) {
-                TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24);
-                if (font) {
-                    SDL_Color red = {255, 0, 0, 255};
-                    SDL_Surface* surface = TTF_RenderText_Blended(font, "GAME OVER", red);
-                    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-                    SDL_Rect rect = {SCREEN_WIDTH / 2 - surface->w / 2, SCREEN_HEIGHT / 2 - 20, surface->w, surface->h};
-                    SDL_RenderCopy(renderer, texture, NULL, &rect);
-                    SDL_FreeSurface(surface);
-                    SDL_DestroyTexture(texture);
-                    TTF_CloseFont(font);
-                }
+                RenderGameOver(renderer, font);
             }
         }
 
@@ -185,4 +160,4 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     return 0;
 }
-    
+

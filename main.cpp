@@ -2,12 +2,11 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include "spear_dodger.h"
+#include "assets.h"
 #include "spear_runner.h"
-#include "Character.h"
+#include "assets.h"
 
 // Screen size is now 277
-const int SCREEN_WIDTH = 277;
-const int SCREEN_HEIGHT = 277;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {

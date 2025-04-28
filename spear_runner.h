@@ -3,17 +3,13 @@
 
 #include <SDL2/SDL.h>
 #include <vector>
-#include "Character.h"
+#include "assets.h"
+#include <SDL2/SDL_ttf.h> // Include SDL_ttf for text rendering
+#include <string>
+#include "menu.h"
 #include <ctime>   // For time()
 
-enum class SpearDirection {
-    UP, DOWN, LEFT, RIGHT
-};
 
-struct Spear {
-    SDL_Rect rect;
-    SpearDirection direction;
-};
 
 enum class SpearRunnerGameState {
     MENU,
@@ -34,4 +30,5 @@ enum class SpearRunnerDifficulty {
 // --- Function Prototypes ---
 
 int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
+void RenderRunnerMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption);
 #endif // SPEAR_RUNNER_H
