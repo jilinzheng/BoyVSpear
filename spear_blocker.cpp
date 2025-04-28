@@ -1,10 +1,9 @@
-#include "spear_dodger.h"
+#include "spear_blocker.h"
 #include <ctime>   // For time()
 
-
+int SPEAR_COUNTER = 0; // Counter for spears
 int RETURN_TO_MENU = 0; // Flag to return to menu
 const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20; // Keep block zone relative
-const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // CHANGE THIS to a valid TTF font path!
 
 // --- Main Function ---
 int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
@@ -53,7 +52,13 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
     while (running) {
         startGame = false;
 
-        HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame);
+        if(HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame) == -1)
+        {
+            return -1;
+        }
+
+        if(!running) break;
+    
 
         switch (gameState) {
             case GameState::MENU:
@@ -63,7 +68,7 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
                     {
                         startGame = false;
                         RETURN_TO_MENU = 0;
-                        return -1;
+                        return 0;
                     }
                     ResetGame(player, spears, gameState, currentSettings);
                     gameOverFlag = false;
@@ -96,11 +101,9 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
         }
 
         RenderGame(renderer, font, player, spears, gameState, menuSelectedOption, gameOverFlag);
-
         SDL_Delay(16);
     }
 
-    CloseSDL(window, renderer, font);
     return 0;
 }
 
@@ -116,14 +119,6 @@ GameSettings GetSettingsForDifficulty(Difficulty difficulty) {
     return settings;
 }
 
-void CloseSDL(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
-    TTF_CloseFont(font);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    TTF_Quit();
-    SDL_Quit();
-}
-
 void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings) {
     player.x = static_cast<float>(SCREEN_WIDTH / 2);
     player.y = static_cast<float>(SCREEN_HEIGHT / 2);
@@ -134,10 +129,10 @@ void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState,
     gameState = GameState::PLAYING;
 }
 
-void HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame) {
+int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame){
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0) {
-        if (e.type == SDL_QUIT) { running = false; }
+        if (e.type == SDL_QUIT) { running = false; return -1;}
 
         if (gameState == GameState::MENU) {
             if (e.type == SDL_KEYDOWN) {
@@ -151,7 +146,7 @@ void HandleInput(bool& running, Player& player, GameState& gameState, int& selec
                         else RETURN_TO_MENU = true;
                         startGame = true;
                         break;
-                    case SDLK_ESCAPE: running = false; break;
+                    case SDLK_z: running = false; break;
                 }
             }
         } else if (gameState == GameState::PLAYING) {
@@ -170,6 +165,7 @@ void HandleInput(bool& running, Player& player, GameState& gameState, int& selec
              }
         }
     }
+    return 0;
 }
 
 void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings) {
@@ -189,6 +185,7 @@ void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, cons
         if (CheckSpearInBlockZone(spears[i], blockZone)) {
             if (player.facing == spears[i].originDirection) {
                 spears.erase(spears.begin() + i); // Blocked
+                SPEAR_COUNTER++;
             } else {
                 gameOver = true; // Hit
                 return;
@@ -239,30 +236,26 @@ void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings) {
     newSpear.rect.x = static_cast<int>(newSpear.x); newSpear.rect.y = static_cast<int>(newSpear.y);
     spears.push_back(newSpear);
 }
-
 void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     if (gameState == GameState::MENU) {
-        RenderMenu(renderer, font, selectedOption);
+        if (font) RenderMenu(renderer, font, selectedOption);
     } else if (gameState == GameState::PLAYING || gameState == GameState::GAME_OVER) {
-        // --- Render Gameplay Elements ---
-        RenderPlayerCharacter(renderer, player, gameOverFlag, 1); // Draws character AND shield indicator
-
-        // Draw Spears
-        SDL_SetRenderDrawColor(renderer, 0, 180, 255, 255);
-        for (const auto& spear : spears) {
-            RenderSpear(renderer, spear);
+        if (renderer) {
+            RenderPlayerCharacter(renderer, player, gameOverFlag, 1);
+            SDL_SetRenderDrawColor(renderer, 0, 180, 255, 255);
+            for (const auto& spear : spears) {
+                RenderSpear(renderer, spear);
+            }
+            RenderScore(renderer, font, SPEAR_COUNTER);  // << Only one simple call now
         }
 
-        // --- Render Game Over Text ---
         if (gameState == GameState::GAME_OVER) {
-            RenderGameOver(renderer, font);
+            if (font) RenderGameOver(renderer, font, SPEAR_COUNTER);
         }
     }
 
     SDL_RenderPresent(renderer);
 }
-
-

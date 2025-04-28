@@ -1,5 +1,5 @@
-#ifndef SPEAR_DODGER_H
-#define SPEAR_DODGER_H
+#ifndef SPEAR_BLOCKER_H
+#define SPEAR_BLOCKER_H
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h> // Include SDL_ttf for text rendering
@@ -29,7 +29,7 @@ struct GameSettings {
 
 // --- Function Prototypes ---
 void CloseSDL(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
-void HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
+int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
 void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings);
 void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings);
 void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings);

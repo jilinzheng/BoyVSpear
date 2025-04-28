@@ -3,7 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
-static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // CHANGE THIS to a valid TTF font path!
+int SCORE_TIMER = 0;
+Uint32 lastIncrementTime = SDL_GetTicks();  // current time in milliseconds
 
 
 RunnerSettings GetSettingsForDifficulty(SpearRunnerDifficulty difficulty) {
@@ -46,6 +47,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
     std::vector<Spear> spears;
 
     while (true) {
+
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) return -1;
@@ -57,7 +59,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
                         selectedOption = (selectedOption + 1) % 4;
                     else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
                         if (selectedOption == 3) {
-                            return -1; // Back selected
+                            return 0; // Back selected
                         } else {
                             settings = GetSettingsForDifficulty(static_cast<SpearRunnerDifficulty>(selectedOption));
                             gameOver = false;
@@ -80,6 +82,13 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
         // Gameplay logic
         if (gameState == SpearRunnerGameState::PLAYING && !gameOver) {
+            //update score
+            Uint32 currentTime = SDL_GetTicks();
+            if (currentTime > lastIncrementTime + 1000) { // 1000 ms = 1 second
+                SCORE_TIMER++;
+                lastIncrementTime = currentTime;
+            }
+
             const Uint8* keys = SDL_GetKeyboardState(NULL);
             float moveX = 0, moveY = 0;
             if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) moveY = -PLAYER_SPEED;
@@ -146,11 +155,12 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
          else {
             RenderPlayerCharacter(renderer, player, gameOver, 0);
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            RenderScore(renderer, font, SCORE_TIMER); // Render score
             for (auto& spear : spears) {
                 RenderSpear(renderer, spear); // Draw spears
             }
             if (gameState == SpearRunnerGameState::GAME_OVER) {
-                RenderGameOver(renderer, font);
+                RenderGameOver(renderer, font, SCORE_TIMER);
             }
         }
 

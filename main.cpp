@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
-#include "spear_dodger.h"
+#include "spear_blocker.h"
 #include "assets.h"
 #include "spear_runner.h"
 #include "assets.h"
@@ -27,28 +27,7 @@ int main(int argc, char* argv[]) {
     int selectedGame = 0;
 
     while (running) {
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                running = false;
-            } else if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP) {
-                    selectedGame = (selectedGame - 1 + 2) % 2;
-                } else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN) {
-                    selectedGame = (selectedGame + 1) % 2;
-                } else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-                    if (selectedGame == 0) {
-                        SpearDodgerMain(window, renderer);
-                    } else if (selectedGame == 1) {
-                        SpearRunnerMain(window, renderer);
-                    }
-                } else if (e.key.keysym.sym == SDLK_ESCAPE) {
-                    running = false;
-                }
-            }
-        }
-
-        // Render Menu
+         // Render Menu
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
@@ -56,7 +35,7 @@ int main(int argc, char* argv[]) {
         SDL_Color yellow = {255, 255, 0, 255};
 
         // Simple menu display
-        SDL_Surface* surface = TTF_RenderText_Blended(font, "Spear Dodger", selectedGame == 0 ? yellow : white);
+        SDL_Surface* surface = TTF_RenderText_Blended(font, "Spear Blocker", selectedGame == 0 ? yellow : white);
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
         SDL_Rect rect = {SCREEN_WIDTH / 2 - surface->w / 2, SCREEN_HEIGHT / 2 - 50, surface->w, surface->h};
         SDL_RenderCopy(renderer, texture, NULL, &rect);
@@ -72,6 +51,37 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
+
+        // Handle events
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                running = false;
+            } else if (e.type == SDL_KEYDOWN) {
+                if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP) {
+                    selectedGame = (selectedGame - 1 + 2) % 2;
+                } else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN) {
+                    selectedGame = (selectedGame + 1) % 2;
+                } else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
+                    if (selectedGame == 0) {
+                        if(SpearDodgerMain(window, renderer) == -1)
+                        {
+                            printf("exiting");
+                            running = false;
+                        }
+                        
+                    } else if (selectedGame == 1) {
+                        if(SpearRunnerMain(window, renderer) == -1)
+                        {
+                            running = false;
+                        }
+                    }
+                } else if (e.key.keysym.sym == SDLK_ESCAPE) {
+                    running = false;
+                }
+            }
+        }
+
     }
 
     TTF_CloseFont(font);

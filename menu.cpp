@@ -22,8 +22,32 @@ void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption) {
     RenderText(renderer, font, "Back",   SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 90, (selectedOption == 3) ? yellow : white);
 }
 
-void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font) {
+void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font, int score) {
     SDL_Color red = {255, 50, 50, 255};
     SDL_Color white = {255, 255, 255, 255};
     RenderText(renderer, font, "GAME OVER", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20, red);
+    RenderText(renderer, font, "Your Score : " + std::to_string(score), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 20, white);
 }
+
+void RenderScore(SDL_Renderer* renderer, TTF_Font* font, int score) {
+    if (!renderer || !font) return; // Safety check
+
+    SDL_Color white = {255, 255, 255, 255};
+    std::string scoreText = "Score: " + std::to_string(score);
+
+    SDL_Surface* scoreSurface = TTF_RenderText_Blended(font, scoreText.c_str(), white);
+    if (scoreSurface) {
+        SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
+        if (scoreTexture) {
+            SDL_Rect scoreRect;
+            scoreRect.x = 10; // Top-left x
+            scoreRect.y = 10; // Top-left y
+            scoreRect.w = scoreSurface->w;
+            scoreRect.h = scoreSurface->h;
+            SDL_RenderCopy(renderer, scoreTexture, nullptr, &scoreRect);
+            SDL_DestroyTexture(scoreTexture);
+        }
+        SDL_FreeSurface(scoreSurface);
+    }
+}
+
