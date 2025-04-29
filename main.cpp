@@ -6,7 +6,6 @@
 #include "spear_runner.h"
 #include "assets.h"
 
-// Screen size is now 277
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
@@ -27,7 +26,7 @@ int main(int argc, char* argv[]) {
     int selectedGame = 0;
 
     while (running) {
-         // Render Menu
+        // Render Menu
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
@@ -69,7 +68,6 @@ int main(int argc, char* argv[]) {
                             printf("exiting");
                             running = false;
                         }
-                        
                     } else if (selectedGame == 1) {
                         if(SpearRunnerMain(window, renderer) == -1)
                         {

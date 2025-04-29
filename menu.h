@@ -6,8 +6,8 @@
 #include <string>
 #include "assets.h"
 
-static const int SCREEN_WIDTH = 600;
-static const int SCREEN_HEIGHT = 600;
+static const int SCREEN_WIDTH = 300;
+static const int SCREEN_HEIGHT = 300;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 
 // Function to render text on the screen
