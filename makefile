@@ -1,6 +1,7 @@
 CXX = g++
 CXXFLAGS = -Wall -std=c++17
-SDL_FLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf
+# SDL_FLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf
+SDL_FLAGS = `pkg-config --cflags --libs SDL2 sdl2_ttf` # macos
 
 SOURCES = main.cpp spear_blocker.cpp spear_runner.cpp assets.cpp menu.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
