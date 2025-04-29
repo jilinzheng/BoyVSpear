@@ -11,7 +11,7 @@ void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
-    
+
 void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption) {
     SDL_Color white = {255, 255, 255, 255};
     SDL_Color yellow = {255, 255, 0, 255};

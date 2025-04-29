@@ -6,10 +6,9 @@
 #include <string>
 #include "assets.h"
 
-static const int SCREEN_WIDTH = 277;
-static const int SCREEN_HEIGHT = 277;
+static const int SCREEN_WIDTH = 600;
+static const int SCREEN_HEIGHT = 600;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-// static const char* FONT_PATH = "/Library/Fonts/Arial Unicode.ttf"; // macos
 
 // Function to render text on the screen
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);

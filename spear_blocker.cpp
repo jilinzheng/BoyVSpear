@@ -58,7 +58,6 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
         }
 
         if(!running) break;
-    
 
         switch (gameState) {
             case GameState::MENU:
@@ -236,6 +235,7 @@ void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings) {
     newSpear.rect.x = static_cast<int>(newSpear.x); newSpear.rect.y = static_cast<int>(newSpear.y);
     spears.push_back(newSpear);
 }
+
 void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
