@@ -133,7 +133,8 @@ void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState,
 
 int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame){
     SDL_Event e;
-    while (SDL_PollEvent(&e) != 0) {
+    // while (SDL_PollEvent(&e) != 0) {
+
         if (e.type == SDL_QUIT) { running = false; return -1;}
 
         if (gameState == GameState::MENU) {
@@ -191,7 +192,6 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
                 selectedOption = 0;
             }
         }
-    }
     return 0;
 }
 
