@@ -153,7 +153,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             //     }
             // }
             // joystick
-            joy = read_joystick();
+            // joy = read_joystick();
             if (joy.y == UP) selectedOption = (selectedOption-1+4)%4;
             if (joy.y == DOWN) selectedOption = (selectedOption+1)%4;
             if (joy.btn == PRESSED) {
@@ -174,7 +174,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             //     }
             // }
             // // joystick
-            joy = read_joystick();
+            // joy = read_joystick();
             if (joy.y == UP) player.facing = Direction::UP;
             if (joy.y == DOWN) player.facing = Direction::DOWN;
             if (joy.x == LEFT) player.facing = Direction::LEFT;
@@ -186,7 +186,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             //     selectedOption = 0;
             // }
             // joystick
-            joy = read_joystick();
+            // joy = read_joystick();
             if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED) {
                 gameState = GameState::MENU;
                 selectedOption = 0;

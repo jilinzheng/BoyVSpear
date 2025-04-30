@@ -16,6 +16,7 @@
 #include <cerrno>   // For errno
 #include <cstdio>  // For perror
 #include <sstream>
+#include <thread>
 
 
 enum CMD {
@@ -46,7 +47,7 @@ static const int SCREEN_HEIGHT = 300;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 
 
-Joystick read_joystick();
+void read_joystick();
 // Function to render text on the screen
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
 // Function to render the main menu

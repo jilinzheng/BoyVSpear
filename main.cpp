@@ -27,6 +27,9 @@ int main(int argc, char* argv[]) {
     bool running = true;
     int selectedGame = 0;
 
+    // joystick thread
+    std::thread joystick_thread;
+
     while (running) {
         // Check if stream is open, if not, try to open it.
         if (!fifo_stream.is_open()) {
@@ -61,6 +64,8 @@ int main(int argc, char* argv[]) {
                 continue;
             } else {
                 std::cout << "FIFO opened successfully." << std::endl;
+                // launch the joystick reading thread
+                joystick_thread = std::thread(read_joystick);
             }
         }
 
@@ -118,7 +123,7 @@ int main(int argc, char* argv[]) {
         //     }
         // }
 
-        joy = read_joystick();
+        // joy = read_joystick();
         if (joy.y == UP) selectedGame = (selectedGame-1+2)%2;
         if (joy.y == DOWN) selectedGame = (selectedGame+1)%2;
         if (joy.btn == PRESSED) {
@@ -141,6 +146,8 @@ int main(int argc, char* argv[]) {
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();
+
+    if (joystick_thread.joinable()) joystick_thread.join();
 
     return 0;
 }
