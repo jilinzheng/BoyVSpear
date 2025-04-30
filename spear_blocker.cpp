@@ -112,7 +112,7 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
             std::stringstream ss(line);
             // int x, y, btn;
             if (ss >> joy_x_cmd> joy_y_cmd >> joy_btn_press) {
-               std::cout << "Parsed -> X: " << x << ", Y: " << y << ", Btn: " << btn << std::endl;
+               std::cout << "Parsed -> X: " << joy_x_cmd << ", Y: " << joy_y_cmd << ", Btn: " << joy_btn_press << std::endl;
             } else {
                std::cerr << "Warning: Could not parse line: " << line << std::endl;
             }
