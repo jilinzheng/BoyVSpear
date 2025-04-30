@@ -55,12 +55,12 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
         startGame = false;
 
-        if(HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame) == -1)
+        if (HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame) == -1)
         {
             return -1;
         }
 
-        if(!running) break;
+        if (!running) break;
 
         switch (gameState) {
             case GameState::MENU:
@@ -131,8 +131,7 @@ void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState,
     gameState = GameState::PLAYING;
 }
 
-int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame,
-    int joy_x_cmd, int joy_y_cmd, int joy_btn_press){
+int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame){
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) { running = false; return -1;}
@@ -153,15 +152,15 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
                 }
             }
             // joystick
-            if (joy_y_cmd == UP) selectedOption = (selectedOption-1+4)%4;
-            if (joy_y_cmd == DOWN) selectedOption = (selectedOption+1)%4;
-            if (joy_btn_press == PRESSED) {
-                if (selectedOption == 0) difficulty = Difficulty::EASY;
-                else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
-                else if (selectedOption==2) difficulty = Difficulty::HARD;
-                else RETURN_TO_MENU = true;
-                startGame = true;
-            }
+            // if (joy_y_cmd == UP) selectedOption = (selectedOption-1+4)%4;
+            // if (joy_y_cmd == DOWN) selectedOption = (selectedOption+1)%4;
+            // if (joy_btn_press == PRESSED) {
+            //     if (selectedOption == 0) difficulty = Difficulty::EASY;
+            //     else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
+            //     else if (selectedOption==2) difficulty = Difficulty::HARD;
+            //     else RETURN_TO_MENU = true;
+            //     startGame = true;
+            // }
 
         } else if (gameState == GameState::PLAYING) {
             if (e.type == SDL_KEYDOWN) {
@@ -172,11 +171,11 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
                     case SDLK_RIGHT: case SDLK_d: player.facing = Direction::RIGHT; break;
                 }
             }
-            // joystick
-            if (joy_y_cmd == UP) player.facing = Direction::UP;
-            if (joy_y_cmd == DOWN) player.facing = Direction::DOWN;
-            if (joy_x_cmd == LEFT) player.facing = Direction::LEFT;
-            if (joy_x_cmd == RIGHT) player.facing = Direction::RIGHT;
+            // // joystick
+            // if (joy_y_cmd == UP) player.facing = Direction::UP;
+            // if (joy_y_cmd == DOWN) player.facing = Direction::DOWN;
+            // if (joy_x_cmd == LEFT) player.facing = Direction::LEFT;
+            // if (joy_x_cmd == RIGHT) player.facing = Direction::RIGHT;
 
         } else if (gameState == GameState::GAME_OVER) {
             if (e.type == SDL_KEYDOWN) {
@@ -184,10 +183,10 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
                 selectedOption = 0;
             }
             // joystick
-            if (joy_x_cmd!=NEUTRAL||joy_y_cmd!=NEUTRAL||joy_btn_press==PRESSED) {
-                gameState = GameState::MENU;
-                selectedOption = 0;
-            }
+            // if (joy_x_cmd!=NEUTRAL||joy_y_cmd!=NEUTRAL||joy_btn_press==PRESSED) {
+            //     gameState = GameState::MENU;
+            //     selectedOption = 0;
+            // }
         }
     }
     return 0;
