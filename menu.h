@@ -65,8 +65,8 @@ extern Joystick joy;
 extern bool joy_action;
 extern std::mutex joy_mutex;
 
-static const int SCREEN_WIDTH = 300;
-static const int SCREEN_HEIGHT = 300;
+static const int SCREEN_WIDTH = 500;
+static const int SCREEN_HEIGHT = 500;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 
 
