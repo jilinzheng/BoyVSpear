@@ -7,6 +7,7 @@
 #include <fcntl.h> // For low-level open (alternative)
 #include <cerrno>   // For errno
 #include <cstdio>  // For perror
+#include <sstream>
 
 // --- FIFO Configuration - MUST match Python script ---
 const char* FIFO_PATH = "/tmp/joystick_fifo";
