@@ -34,6 +34,26 @@ enum BTN_STATE {
 
 struct Joystick {
     int x, y, btn;
+
+    Joystick& operator=(const Joystick& other) {
+        if (this == &other) {
+            return *this; // Return reference to self
+        }
+        this->x = other.x;
+        this->y = other.y;
+        this->btn = other.btn;
+        return *this;
+    }
+
+    bool operator==(const Joystick& other) const {
+        return this->x == other.x &&
+                this->y == other.y &&
+                this->btn == other.btn;
+    }
+
+    bool operator!=(const Joystick& other) const {
+        return !(*this == other); // Often implemented using ==
+    }
 };
 
 // FIFO to read BLE values written by Python BLE client

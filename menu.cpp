@@ -4,6 +4,8 @@ const char* FIFO_PATH = "/tmp/joystick_fifo";
 std::ifstream fifo_stream;
 std::string line;
 Joystick joy;
+bool joy_action;    // flag for others accessing to use the input
+                    // otherwise don't update using joy to prevent "infinite" loop
 
 // Read line by line from the FIFO stream
 void read_joystick() {
@@ -13,13 +15,15 @@ void read_joystick() {
             std::cout << "Received: " << line << std::endl;
 
             std::stringstream ss(line);
-            // if (ss >> joy_x_cmd >> joy_y_cmd >> joy_btn_press) {
-            //     std::cout << "Parsed -> X: " << joy_x_cmd << ", Y: " << joy_y_cmd << ", Btn: " << joy_btn_press << std::endl;
-            // } else {
-            //     std::cerr << "Warning: Could not parse line: " << line << std::endl;
-            // }
-            if (ss >> joy.x >> joy.y >> joy.btn) {
+            Joystick curr_joy;
+            if (ss >> curr_joy.x >> curr_joy.y >> curr_joy.btn) {
                 std::cout << "Parsed -> X: " << joy.x << ", Y: " << joy.y << ", Btn: " << joy.btn <<"\n";
+                if (joy != curr_joy) {
+                    joy_action = true;
+                    joy = curr_joy;
+                } else {
+                    joy_action = false;
+                }
             } else {
                 std::cerr << "Warning: Could not parse line: " << line << "\n";
             }
