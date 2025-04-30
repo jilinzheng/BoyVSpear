@@ -7,6 +7,7 @@
 #include "assets.h"
 
 
+
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
         std::cout << "Failed to initialize SDL/TTF: " << SDL_GetError() << std::endl;
@@ -26,6 +27,42 @@ int main(int argc, char* argv[]) {
     int selectedGame = 0;
 
     while (running) {
+        // Check if stream is open, if not, try to open it.
+        if (!fifo_stream.is_open()) {
+            // Optional: Check if the FIFO file exists and is a FIFO before opening
+            struct stat stat_buf;
+            if (stat(FIFO_PATH, &stat_buf) == 0) {
+                if (!S_ISFIFO(stat_buf.st_mode)) {
+                    std::cerr << "Error: " << FIFO_PATH << " exists but is not a FIFO." << std::endl;
+                    sleep(5); // Wait before retrying
+                    continue;
+                }
+            } else {
+                // File doesn't exist yet, wait for Python script to create it
+                if (errno == ENOENT) {
+                std::cout << "FIFO not found, waiting..." << std::endl;
+                } else {
+                perror("Error checking FIFO status"); // Other stat error
+                }
+                sleep(2);
+                continue;
+            }
+
+            // Open the FIFO for reading [4] [6]
+            // This will block until the Python script opens it for writing [6]
+            std::cout << "Attempting to open FIFO: " << FIFO_PATH << std::endl;
+            fifo_stream.open(FIFO_PATH); // Opens in read mode by default
+
+            if (!fifo_stream.is_open()) {
+                std::cerr << "Error opening FIFO: " << FIFO_PATH << ". Retrying..." << std::endl;
+                // perror("open"); // Can use perror if using low-level open()
+                sleep(2); // Wait before retrying
+                continue;
+            } else {
+                std::cout << "FIFO opened successfully." << std::endl;
+            }
+        }
+
         // Render Menu
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -80,6 +117,17 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        joystick j = read_joystick();
+        if (j.y == UP) selectedGame = (selectedGame-1+2)%2;
+        if (j.y == DOWN) selectedGame = (selectedGame+1)%2;
+        if (j.btn == PRESSED)
+            if (selectedGame==0)
+                if (SpearDodgerMain(window, renderer)) {
+                    printf("Exiting");
+                    running = false;
+                }
+            else if (selectedGame==1)
+                if (SpearRunnerMain(window, renderer) == -1) running = false;
     }
 
     TTF_CloseFont(font);

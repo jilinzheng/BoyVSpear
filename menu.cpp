@@ -1,5 +1,45 @@
 #include "menu.h"
 
+
+// Read line by line from the FIFO stream
+joystick read_joystick() {
+    if (std::getline(fifo_stream, line)) {
+        // Process the received line (X Y Button)
+        std::cout << "Received: " << line << std::endl;
+
+        std::stringstream ss(line);
+        joystick joy;
+        // if (ss >> joy_x_cmd >> joy_y_cmd >> joy_btn_press) {
+        //     std::cout << "Parsed -> X: " << joy_x_cmd << ", Y: " << joy_y_cmd << ", Btn: " << joy_btn_press << std::endl;
+        // } else {
+        //     std::cerr << "Warning: Could not parse line: " << line << std::endl;
+        // }
+        if (ss >> joy.x >> joy.y >> joy.btn) {
+            std::cout << "Parsed -> X: " << joy.x << ", Y: " << joy.y << ", Btn: " << joy.btn <<"\n";
+            return joy;
+        } else {
+            std::cerr << "Warning: Could not parse line: " << line << "\n";
+        }
+
+    } else {
+        std::cout<<"getline failed\n"<<"\n";
+        // // getline failed. This could mean the writer closed the pipe (EOF)
+        // // or some other error occurred.
+        // if (fifo_stream.eof()) {
+        //     std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
+        // } else if (fifo_stream.fail()) {
+        //     std::cerr << "Stream error occurred. Re-opening..." << std::endl;
+        // } else {
+        //         std::cerr << "Unknown stream state. Re-opening..." << std::endl;
+        // }
+        // fifo_stream.close();    // Close the stream
+        // fifo_stream.clear();    // Clear error flags
+        // sleep(1); // Small delay before trying to reopen
+        // continue;
+    }
+}
+
+
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color) {
     if (!font) return;
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
