@@ -9,6 +9,7 @@
 #include <fcntl.h> // For low-level open (alternative)
 #include <cerrno>   // For errno
 #include <cstdio>  // For perror
+#include <sstream>
 
 
 int SPEAR_COUNTER = 0; // Counter for spears
