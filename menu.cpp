@@ -1,5 +1,8 @@
 #include "menu.h"
 
+const char* FIFO_PATH = "/tmp/joystick_fifo";
+std::ifstream fifo_stream;
+std::string line;
 
 // Read line by line from the FIFO stream
 joystick read_joystick() {
