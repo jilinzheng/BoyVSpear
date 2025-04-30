@@ -36,9 +36,9 @@ struct joystick {
 };
 
 // FIFO to read BLE values written by Python BLE client
-const char* FIFO_PATH = "/tmp/joystick_fifo";
-std::ifstream fifo_stream;
-std::string line;
+static const char* FIFO_PATH = "/tmp/joystick_fifo";
+static std::ifstream fifo_stream;
+static std::string line;
 
 static const int SCREEN_WIDTH = 300;
 static const int SCREEN_HEIGHT = 300;

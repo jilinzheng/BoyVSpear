@@ -27,12 +27,6 @@ struct GameSettings {
     int spearMult;
 };
 
-
-extern const char* FIFO_PATH;
-extern std::ifstream fifo_stream;
-extern std::string line;
-
-
 // --- Function Prototypes ---
 void CloseSDL(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
 int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
