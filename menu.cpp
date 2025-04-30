@@ -10,39 +10,36 @@ bool joy_action;    // flag for others accessing to use the input
 // Read line by line from the FIFO stream
 void read_joystick() {
     while (true) {
-        if (std::getline(fifo_stream, line)) {
-            // Process the received line (X Y Button)
-            std::cout << "Received: " << line << std::endl;
+        for (int i = 0; i < 2; ++i) {
+            if (std::getline(fifo_stream, line)) {
+                // Process the received line (X Y Button)
+                std::cout << "Received: " << line << std::endl;
 
-            std::stringstream ss(line);
-            Joystick curr_joy;
-            if (ss >> curr_joy.x >> curr_joy.y >> curr_joy.btn) {
-                std::cout << "Parsed -> X: " << joy.x << ", Y: " << joy.y << ", Btn: " << joy.btn <<"\n";
-                if (joy != curr_joy) {
-                    joy_action = true;
-                    joy = curr_joy;
-                    usleep(10000);
-                    joy_action = false;
+                std::stringstream ss(line);
+                if (ss >> joy.x >> joy.y >> joy.btn) {
+                    std::cout << "Parsed -> X: " << joy.x << ", Y: " << joy.y << ", Btn: " << joy.btn <<"\n";
+                    if (i == 0) joy_action = true;
+                    else joy_action = false;
+                } else {
+                    std::cerr << "Warning: Could not parse line: " << line << "\n";
                 }
-            } else {
-                std::cerr << "Warning: Could not parse line: " << line << "\n";
-            }
 
-        } else {
-            std::cout<<"getline failed\n"<<"\n";
-            // // getline failed. This could mean the writer closed the pipe (EOF)
-            // // or some other error occurred.
-            if (fifo_stream.eof()) {
-                std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
-            } else if (fifo_stream.fail()) {
-                std::cerr << "Stream error occurred. Re-opening..." << std::endl;
             } else {
-                    std::cerr << "Unknown stream state. Re-opening..." << std::endl;
+                std::cout<<"getline failed\n"<<"\n";
+                // // getline failed. This could mean the writer closed the pipe (EOF)
+                // // or some other error occurred.
+                if (fifo_stream.eof()) {
+                    std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
+                } else if (fifo_stream.fail()) {
+                    std::cerr << "Stream error occurred. Re-opening..." << std::endl;
+                } else {
+                        std::cerr << "Unknown stream state. Re-opening..." << std::endl;
+                }
+                fifo_stream.close();    // Close the stream
+                fifo_stream.clear();    // Clear error flags
+                sleep(1); // Small delay before trying to reopen
+                continue;
             }
-            fifo_stream.close();    // Close the stream
-            fifo_stream.clear();    // Clear error flags
-            sleep(1); // Small delay before trying to reopen
-            continue;
         }
     }
 }
