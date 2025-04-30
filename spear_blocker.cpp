@@ -165,6 +165,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
                 gameState = GameState::MENU;
                 selectedOption = 0;
             }
+        }
     }
 
     return 0;
