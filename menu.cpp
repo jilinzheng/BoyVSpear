@@ -23,6 +23,7 @@ void read_joystick() {
                 if (new_joy != old_joy) joy_action = true;
                 joy = new_joy;
                 old_joy = new_joy;
+                std::cout << "joy_action = true" << "\n";
             } else {
                 std::cerr << "Warning: Could not parse line: " << line << "\n";
             }

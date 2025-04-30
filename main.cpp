@@ -92,25 +92,33 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
 
-        std::lock_guard<std::mutex> lock(joy_mutex);
-        if (joy_action) {
-            joy_action = false;
-            if (joy.y == UP) selectedGame = (selectedGame-1+2)%2;
-            if (joy.y == DOWN) selectedGame = (selectedGame+1)%2;
-            if (joy.btn == PRESSED) {
-                if (selectedGame==0) {
-                    if (SpearDodgerMain(window, renderer)) {
-                        printf("Exiting");
-                        running = false;
-                    }
+        bool descend_menu = false, ascend_menu = false, enter_game = false;
+        {   // scope the mutex
+            std::lock_guard<std::mutex> lock(joy_mutex);
+            if (joy_action) {
+                joy_action = false;
+                if (joy.y == UP) ascend_menu = true;
+                else if (joy.y == DOWN) descend_menu = true;
+                else if (joy.btn == PRESSED) enter_game = true;
+            }
+        }   // automatically frees here
+        // TODO: 
+        if (ascend_menu) selectedGame = (selectedGame-1+2)%2;
+        else if (descend_menu) selectedGame = (selectedGame+1)%2;
+        else if (enter_game) {
+            if (selectedGame==0) {
+                if (SpearDodgerMain(window, renderer)) {
+                    printf("Exiting");
+                    running = false;
                 }
-                else if (selectedGame==1) {
-                    if (SpearRunnerMain(window, renderer) == -1) {
-                        running = false;
-                    }
+            }
+            else if (selectedGame==1) {
+                if (SpearRunnerMain(window, renderer) == -1) {
+                    running = false;
                 }
             }
         }
+
     }
 
     TTF_CloseFont(font);
