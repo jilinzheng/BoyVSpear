@@ -120,14 +120,19 @@ int main(int argc, char* argv[]) {
         joystick j = read_joystick();
         if (j.y == UP) selectedGame = (selectedGame-1+2)%2;
         if (j.y == DOWN) selectedGame = (selectedGame+1)%2;
-        if (j.btn == PRESSED)
-            if (selectedGame==0)
+        if (j.btn == PRESSED) {
+            if (selectedGame==0) {
                 if (SpearDodgerMain(window, renderer)) {
                     printf("Exiting");
                     running = false;
                 }
-            else if (selectedGame==1)
-                if (SpearRunnerMain(window, renderer) == -1) running = false;
+            }
+            else if (selectedGame==1) {
+                if (SpearRunnerMain(window, renderer) == -1) {
+                    running = false;
+                }
+            }
+        }
     }
 
     TTF_CloseFont(font);
