@@ -61,6 +61,7 @@ extern const char* FIFO_PATH;
 extern std::ifstream fifo_stream;
 extern std::string line;
 extern Joystick joy;
+extern bool joy_action;
 
 static const int SCREEN_WIDTH = 300;
 static const int SCREEN_HEIGHT = 300;

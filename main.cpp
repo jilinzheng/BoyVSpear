@@ -124,9 +124,9 @@ int main(int argc, char* argv[]) {
         // }
 
         // joy = read_joystick();
-        if (joy.y == UP) selectedGame = (selectedGame-1+2)%2;
-        if (joy.y == DOWN) selectedGame = (selectedGame+1)%2;
-        if (joy.btn == PRESSED) {
+        if (joy_action && joy.y == UP) selectedGame = (selectedGame-1+2)%2;
+        if (joy_action && joy.y == DOWN) selectedGame = (selectedGame+1)%2;
+        if (joy_action && joy.btn == PRESSED) {
             if (selectedGame==0) {
                 if (SpearDodgerMain(window, renderer)) {
                     printf("Exiting");

@@ -154,9 +154,9 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             // }
             // joystick
             // joy = read_joystick();
-            if (joy.y == UP) selectedOption = (selectedOption-1+4)%4;
-            if (joy.y == DOWN) selectedOption = (selectedOption+1)%4;
-            if (joy.btn == PRESSED) {
+            if (joy_action && joy.y == UP) selectedOption = (selectedOption-1+4)%4;
+            if (joy_action && joy.y == DOWN) selectedOption = (selectedOption+1)%4;
+            if (joy_action && joy.btn == PRESSED) {
                 if (selectedOption == 0) difficulty = Difficulty::EASY;
                 else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
                 else if (selectedOption==2) difficulty = Difficulty::HARD;
@@ -175,10 +175,10 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             // }
             // // joystick
             // joy = read_joystick();
-            if (joy.y == UP) player.facing = Direction::UP;
-            if (joy.y == DOWN) player.facing = Direction::DOWN;
-            if (joy.x == LEFT) player.facing = Direction::LEFT;
-            if (joy.x == RIGHT) player.facing = Direction::RIGHT;
+            if (joy_action && joy.y == UP) player.facing = Direction::UP;
+            if (joy_action && joy.y == DOWN) player.facing = Direction::DOWN;
+            if (joy_action && joy.x == LEFT) player.facing = Direction::LEFT;
+            if (joy_action && joy.x == RIGHT) player.facing = Direction::RIGHT;
 
         } else if (gameState == GameState::GAME_OVER) {
             // if (e.type == SDL_KEYDOWN) {
@@ -187,7 +187,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             // }
             // joystick
             // joy = read_joystick();
-            if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED) {
+            if (joy_action && (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED)) {
                 gameState = GameState::MENU;
                 selectedOption = 0;
             }
