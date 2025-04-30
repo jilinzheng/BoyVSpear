@@ -133,28 +133,40 @@ void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState,
 
 int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame){
     if (gameState == GameState::MENU) {
-        if (joy_action && joy.y == UP) selectedOption = (selectedOption-1+4)%4;
-        if (joy_action && joy.y == DOWN) selectedOption = (selectedOption+1)%4;
-        if (joy_action && joy.btn == PRESSED) {
-            if (selectedOption == 0) difficulty = Difficulty::EASY;
-            else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
-            else if (selectedOption==2) difficulty = Difficulty::HARD;
-            else RETURN_TO_MENU = true;
-            startGame = true;
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            if (joy.y == UP) selectedOption = (selectedOption-1+4)%4;
+            if (joy.y == DOWN) selectedOption = (selectedOption+1)%4;
+            if (joy.btn == PRESSED) {
+                if (selectedOption == 0) difficulty = Difficulty::EASY;
+                else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
+                else if (selectedOption==2) difficulty = Difficulty::HARD;
+                else RETURN_TO_MENU = true;
+                startGame = true;
+            }
         }
 
     } else if (gameState == GameState::PLAYING) {
-        if (joy_action && joy.y == UP) player.facing = Direction::UP;
-        if (joy_action && joy.y == DOWN) player.facing = Direction::DOWN;
-        if (joy_action && joy.x == LEFT) player.facing = Direction::LEFT;
-        if (joy_action && joy.x == RIGHT) player.facing = Direction::RIGHT;
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            if (joy.y == UP) player.facing = Direction::UP;
+            if (joy.y == DOWN) player.facing = Direction::DOWN;
+            if (joy.x == LEFT) player.facing = Direction::LEFT;
+            if (joy.x == RIGHT) player.facing = Direction::RIGHT;
+        }
 
     } else if (gameState == GameState::GAME_OVER) {
-        if (joy_action && (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED)) {
-            gameState = GameState::MENU;
-            selectedOption = 0;
-        }
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED) {
+                gameState = GameState::MENU;
+                selectedOption = 0;
+            }
     }
+
     return 0;
 }
 

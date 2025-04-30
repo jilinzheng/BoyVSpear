@@ -62,6 +62,7 @@ extern std::ifstream fifo_stream;
 extern std::string line;
 extern Joystick joy;
 extern bool joy_action;
+extern std::mutex joy_mutex;
 
 static const int SCREEN_WIDTH = 300;
 static const int SCREEN_HEIGHT = 300;

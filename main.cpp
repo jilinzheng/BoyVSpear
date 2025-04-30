@@ -7,8 +7,6 @@
 #include "assets.h"
 
 
-
-
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
         std::cout << "Failed to initialize SDL/TTF: " << SDL_GetError() << std::endl;
@@ -94,48 +92,22 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
 
-        // Handle events
-        // SDL_Event e;
-        // while (SDL_PollEvent(&e)) {
-        //     if (e.type == SDL_QUIT) {
-        //         running = false;
-        //     } else if (e.type == SDL_KEYDOWN) {
-        //         if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP) {
-        //             selectedGame = (selectedGame - 1 + 2) % 2;
-        //         } else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN) {
-        //             selectedGame = (selectedGame + 1) % 2;
-        //         } else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-        //             if (selectedGame == 0) {
-        //                 if(SpearDodgerMain(window, renderer) == -1)
-        //                 {
-        //                     printf("exiting");
-        //                     running = false;
-        //                 }
-        //             } else if (selectedGame == 1) {
-        //                 if(SpearRunnerMain(window, renderer) == -1)
-        //                 {
-        //                     running = false;
-        //                 }
-        //             }
-        //         } else if (e.key.keysym.sym == SDLK_ESCAPE) {
-        //             running = false;
-        //         }
-        //     }
-        // }
-
-        // joy = read_joystick();
-        if (joy_action && joy.y == UP) selectedGame = (selectedGame-1+2)%2;
-        if (joy_action && joy.y == DOWN) selectedGame = (selectedGame+1)%2;
-        if (joy_action && joy.btn == PRESSED) {
-            if (selectedGame==0) {
-                if (SpearDodgerMain(window, renderer)) {
-                    printf("Exiting");
-                    running = false;
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            if (joy.y == UP) selectedGame = (selectedGame-1+2)%2;
+            if (joy.y == DOWN) selectedGame = (selectedGame+1)%2;
+            if (joy.btn == PRESSED) {
+                if (selectedGame==0) {
+                    if (SpearDodgerMain(window, renderer)) {
+                        printf("Exiting");
+                        running = false;
+                    }
                 }
-            }
-            else if (selectedGame==1) {
-                if (SpearRunnerMain(window, renderer) == -1) {
-                    running = false;
+                else if (selectedGame==1) {
+                    if (SpearRunnerMain(window, renderer) == -1) {
+                        running = false;
+                    }
                 }
             }
         }

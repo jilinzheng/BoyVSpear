@@ -3,43 +3,45 @@
 const char* FIFO_PATH = "/tmp/joystick_fifo";
 std::ifstream fifo_stream;
 std::string line;
-Joystick joy;
-bool joy_action;    // flag for others accessing to use the input
+Joystick joy, old_joy = {-1,-1,-1};
+bool joy_action = false;    // flag for others accessing to use the input
                     // otherwise don't update using joy to prevent "infinite" loop
+std::mutex joy_mutex;
 
 // Read line by line from the FIFO stream
 void read_joystick() {
     while (true) {
-        for (int i = 0; i < 2; ++i) {
-            if (std::getline(fifo_stream, line)) {
-                // Process the received line (X Y Button)
-                std::cout << "Received: " << line << std::endl;
+        if (std::getline(fifo_stream, line)) {
+            // Process the received line (X Y Button)
+            std::cout << "Received: " << line << std::endl;
 
-                std::stringstream ss(line);
-                if (ss >> joy.x >> joy.y >> joy.btn) {
-                    std::cout << "Parsed -> X: " << joy.x << ", Y: " << joy.y << ", Btn: " << joy.btn <<"\n";
-                    if (i == 0) joy_action = true;
-                    else joy_action = false;
-                } else {
-                    std::cerr << "Warning: Could not parse line: " << line << "\n";
-                }
-
+            std::stringstream ss(line);
+            Joystick new_joy;
+            if (ss >> new_joy.x >> new_joy.y >> new_joy.btn) {
+                std::lock_guard<std::mutex> lock(joy_mutex);
+                std::cout << "Parsed -> X: " << new_joy.x << ", Y: " << new_joy.y << ", Btn: " << new_joy.btn <<"\n";
+                if (new_joy != old_joy) joy_action = true;
+                joy = new_joy;
+                old_joy = new_joy;
             } else {
-                std::cout<<"getline failed\n"<<"\n";
-                // // getline failed. This could mean the writer closed the pipe (EOF)
-                // // or some other error occurred.
-                if (fifo_stream.eof()) {
-                    std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
-                } else if (fifo_stream.fail()) {
-                    std::cerr << "Stream error occurred. Re-opening..." << std::endl;
-                } else {
-                        std::cerr << "Unknown stream state. Re-opening..." << std::endl;
-                }
-                fifo_stream.close();    // Close the stream
-                fifo_stream.clear();    // Clear error flags
-                sleep(1); // Small delay before trying to reopen
-                continue;
+                std::cerr << "Warning: Could not parse line: " << line << "\n";
             }
+
+        } else {
+            std::cout<<"getline failed\n"<<"\n";
+            // // getline failed. This could mean the writer closed the pipe (EOF)
+            // // or some other error occurred.
+            if (fifo_stream.eof()) {
+                std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
+            } else if (fifo_stream.fail()) {
+                std::cerr << "Stream error occurred. Re-opening..." << std::endl;
+            } else {
+                    std::cerr << "Unknown stream state. Re-opening..." << std::endl;
+            }
+            fifo_stream.close();    // Close the stream
+            fifo_stream.clear();    // Clear error flags
+            sleep(1); // Small delay before trying to reopen
+            continue;
         }
     }
 }
