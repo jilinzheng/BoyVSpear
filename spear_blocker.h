@@ -29,7 +29,8 @@ struct GameSettings {
 
 // --- Function Prototypes ---
 void CloseSDL(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
-int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
+int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame,
+    int joy_x_cmd, int joy_y_cmd, int joy_btn_press);
 void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings);
 void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings);
 void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings);

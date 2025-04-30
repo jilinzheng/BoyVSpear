@@ -6,9 +6,25 @@
 #include <string>
 #include "assets.h"
 
+
+enum CMD {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    NEUTRAL
+};
+
+enum BTN_STATE {
+    PRESSED,  // software pullup resistor, pressing button gives LOW/0
+    RELEASED
+};
+
+
 static const int SCREEN_WIDTH = 300;
 static const int SCREEN_HEIGHT = 300;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+
 
 // Function to render text on the screen
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
