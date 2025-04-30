@@ -47,54 +47,59 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
     std::vector<Spear> spears;
 
     while (true) {
-
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) return -1;
-            if (e.type == SDL_KEYDOWN) {
-                if (gameState == SpearRunnerGameState::MENU) {
-                    if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP)
-                        selectedOption = (selectedOption - 1 + 4) % 4;
-                    else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN)
-                        selectedOption = (selectedOption + 1) % 4;
-                    else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-                        if (selectedOption == 3) {
-                            return 0; // Back selected
-                        } else {
-                            settings = GetSettingsForDifficulty(static_cast<SpearRunnerDifficulty>(selectedOption));
-                            gameOver = false;
-                            frameCount = 0;
-                            spears.clear();
-                            player.x = SCREEN_WIDTH / 2.0f;
-                            player.y = SCREEN_HEIGHT / 2.0f;
-                            player.rect.x = static_cast<int>(player.x - player.rect.w / 2);
-                            player.rect.y = static_cast<int>(player.y - player.rect.h / 2);
-                            gameState = SpearRunnerGameState::PLAYING;
-                        }
-                    }
-                } else if (gameState == SpearRunnerGameState::GAME_OVER) {
-                    if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-                        gameState = SpearRunnerGameState::MENU;
+        if (gameState == SpearRunnerGameState::MENU) {
+            std::lock_guard<std::mutex> lock(joy_mutex);
+            if (joy_action) {
+                joy_action = false;
+                if (joy.y == UP) selectedOption = (selectedOption - 1 + 4) % 4;
+                else if (joy.y == DOWN) selectedOption = (selectedOption + 1) % 4;
+                else if (joy.btn == PRESSED) {
+                    if (selectedOption == 3) {
+                        return 0; // Back selected
+                    } else {
+                        settings = GetSettingsForDifficulty(static_cast<SpearRunnerDifficulty>(selectedOption));
+                        gameOver = false;
+                        frameCount = 0;
+                        spears.clear();
+                        player.x = SCREEN_WIDTH / 2.0f;
+                        player.y = SCREEN_HEIGHT / 2.0f;
+                        player.rect.x = static_cast<int>(player.x - player.rect.w / 2);
+                        player.rect.y = static_cast<int>(player.y - player.rect.h / 2);
+                        gameState = SpearRunnerGameState::PLAYING;
                     }
                 }
             }
         }
 
+        else if (gameState == SpearRunnerGameState::GAME_OVER) {
+            std::lock_guard<std::mutex> lock(joy_mutex);
+            if (joy_action) {
+                joy_action = false;
+                if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED)
+                    gameState = SpearRunnerGameState::MENU;
+            }
+        }
+
         // Gameplay logic
         if (gameState == SpearRunnerGameState::PLAYING && !gameOver) {
-            //update score
+            // std::lock_guard<std::mutex> lock(joy_mutex);
+            // update score
             Uint32 currentTime = SDL_GetTicks();
             if (currentTime > lastIncrementTime + 1000) { // 1000 ms = 1 second
                 SCORE_TIMER++;
                 lastIncrementTime = currentTime;
             }
 
-            const Uint8* keys = SDL_GetKeyboardState(NULL);
+            // const Uint8* keys = SDL_GetKeyboardState(NULL);
             float moveX = 0, moveY = 0;
-            if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) moveY = -PLAYER_SPEED;
-            if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) moveY = PLAYER_SPEED;
-            if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) moveX = -PLAYER_SPEED;
-            if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) moveX = PLAYER_SPEED;
+            // if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) moveY = -PLAYER_SPEED;
+            // if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) moveY = PLAYER_SPEED;
+            // if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) moveX = -PLAYER_SPEED;
+            // if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) moveX = PLAYER_SPEED;
+            if (joy.y == UP) moveY = -PLAYER_SPEED;
+            if (joy.y == DOWN) moveY = PLAYER_SPEED;
+            if (joy.x == LEFT) moveX = -PLAYER_SPEED;
+            if (joy.x == RIGHT) moveX = PLAYER_SPEED;
 
             player.x += moveX;
             player.y += moveY;
