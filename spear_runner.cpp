@@ -75,6 +75,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
                 } else if (gameState == SpearRunnerGameState::GAME_OVER) {
                     if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
                         gameState = SpearRunnerGameState::MENU;
+                        SCORE_TIMER = 0;
                     }
                 }
             }
@@ -151,6 +152,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
         if (gameState == SpearRunnerGameState::MENU) {
             RenderMenu(renderer, font, selectedOption);
+            SCORE_TIMER = 0;
             }
          else {
             RenderPlayerCharacter(renderer, player, gameOver, 0);

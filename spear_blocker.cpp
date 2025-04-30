@@ -59,7 +59,6 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
         if(!running) break;
     
-
         switch (gameState) {
             case GameState::MENU:
                 if (startGame) {
@@ -70,6 +69,7 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
                         RETURN_TO_MENU = 0;
                         return 0;
                     }
+                    SPEAR_COUNTER = 0;
                     ResetGame(player, spears, gameState, currentSettings);
                     gameOverFlag = false;
                     frameCount = 0;
