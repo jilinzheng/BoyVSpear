@@ -156,6 +156,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
         SDL_RenderClear(renderer);
 
         if (gameState == SpearRunnerGameState::MENU) {
+            SCORE_TIMER = 0;
             RenderMenu(renderer, font, selectedOption);
             }
          else {

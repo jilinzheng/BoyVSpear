@@ -65,6 +65,7 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
         switch (gameState) {
             case GameState::MENU:
                 if (startGame) {
+                    SPEAR_COUNTER = 0;
                     currentSettings = GetSettingsForDifficulty(difficulty);
                     if (RETURN_TO_MENU==1)
                     {
