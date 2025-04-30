@@ -102,12 +102,11 @@ int main(int argc, char* argv[]) {
                 else if (joy.btn == PRESSED) enter_game = true;
             }
         }   // automatically frees here
-        // TODO: 
         if (ascend_menu) selectedGame = (selectedGame-1+2)%2;
         else if (descend_menu) selectedGame = (selectedGame+1)%2;
         else if (enter_game) {
             if (selectedGame==0) {
-                if (SpearDodgerMain(window, renderer)) {
+                if (SpearBlockerMain(window, renderer)) {
                     printf("Exiting");
                     running = false;
                 }

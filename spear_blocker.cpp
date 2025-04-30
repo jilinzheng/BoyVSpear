@@ -7,7 +7,7 @@ const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20; // Keep block zone relative
 
 
 // --- Main Function ---
-int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
+int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
     TTF_Font* font = nullptr;
 
     font = TTF_OpenFont(FONT_PATH, 28);
@@ -165,7 +165,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
         if (joy_action) {
             joy_action = false;
             std::cout << "joy_action = false" << "\n";
-            if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED) {
+            if (joy.btn==PRESSED) {
                 gameState = GameState::MENU;
                 selectedOption = 0;
             }
