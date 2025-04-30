@@ -234,7 +234,7 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             }
             // joystick
             if (joy_y_cmd == UP) selectedOption = (selectedOption-1+4)%4;
-            if (joy_y_cmd = DOWN) selectedOption = (selectedOption+1)%4;
+            if (joy_y_cmd == DOWN) selectedOption = (selectedOption+1)%4;
             if (joy_btn_press == PRESSED) {
                 if (selectedOption == 0) difficulty = Difficulty::EASY;
                 else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
