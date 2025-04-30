@@ -31,7 +31,7 @@ enum BTN_STATE {
     RELEASED
 };
 
-struct joystick {
+struct Joystick {
     int x, y, btn;
 };
 
@@ -39,13 +39,14 @@ struct joystick {
 extern const char* FIFO_PATH;
 extern std::ifstream fifo_stream;
 extern std::string line;
+extern Joystick joy;
 
 static const int SCREEN_WIDTH = 300;
 static const int SCREEN_HEIGHT = 300;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 
 
-joystick read_joystick();
+Joystick read_joystick();
 // Function to render text on the screen
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
 // Function to render the main menu

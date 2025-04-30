@@ -8,6 +8,7 @@
 
 
 
+
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
         std::cout << "Failed to initialize SDL/TTF: " << SDL_GetError() << std::endl;
@@ -117,10 +118,10 @@ int main(int argc, char* argv[]) {
         //     }
         // }
 
-        joystick j = read_joystick();
-        if (j.y == UP) selectedGame = (selectedGame-1+2)%2;
-        if (j.y == DOWN) selectedGame = (selectedGame+1)%2;
-        if (j.btn == PRESSED) {
+        joy = read_joystick();
+        if (joy.y == UP) selectedGame = (selectedGame-1+2)%2;
+        if (joy.y == DOWN) selectedGame = (selectedGame+1)%2;
+        if (joy.btn == PRESSED) {
             if (selectedGame==0) {
                 if (SpearDodgerMain(window, renderer)) {
                     printf("Exiting");

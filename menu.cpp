@@ -3,15 +3,15 @@
 const char* FIFO_PATH = "/tmp/joystick_fifo";
 std::ifstream fifo_stream;
 std::string line;
+Joystick joy;
 
 // Read line by line from the FIFO stream
-joystick read_joystick() {
+Joystick read_joystick() {
     if (std::getline(fifo_stream, line)) {
         // Process the received line (X Y Button)
         std::cout << "Received: " << line << std::endl;
 
         std::stringstream ss(line);
-        joystick joy;
         // if (ss >> joy_x_cmd >> joy_y_cmd >> joy_btn_press) {
         //     std::cout << "Parsed -> X: " << joy_x_cmd << ", Y: " << joy_y_cmd << ", Btn: " << joy_btn_press << std::endl;
         // } else {
@@ -40,6 +40,7 @@ joystick read_joystick() {
         // sleep(1); // Small delay before trying to reopen
         // continue;
     }
+    return joy;
 }
 
 

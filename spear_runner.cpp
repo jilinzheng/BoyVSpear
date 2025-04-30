@@ -126,6 +126,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
                     case Direction::DOWN: spear.rect.y -= settings.spearSpeed; break;
                     case Direction::LEFT: spear.rect.x += settings.spearSpeed; break;
                     case Direction::RIGHT: spear.rect.x -= settings.spearSpeed; break;
+                    case Direction::NONE: break;
                 }
             }
 

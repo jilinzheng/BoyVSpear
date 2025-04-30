@@ -152,10 +152,10 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             //     }
             // }
             // joystick
-            joystick j = read_joystick();
-            if (j.y == UP) selectedOption = (selectedOption-1+4)%4;
-            if (j.y == DOWN) selectedOption = (selectedOption+1)%4;
-            if (j.btn == PRESSED) {
+            joy = read_joystick();
+            if (joy.y == UP) selectedOption = (selectedOption-1+4)%4;
+            if (joy.y == DOWN) selectedOption = (selectedOption+1)%4;
+            if (joy.btn == PRESSED) {
                 if (selectedOption == 0) difficulty = Difficulty::EASY;
                 else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
                 else if (selectedOption==2) difficulty = Difficulty::HARD;
@@ -173,11 +173,11 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             //     }
             // }
             // // joystick
-            joystick j = read_joystick();
-            if (j.y == UP) player.facing = Direction::UP;
-            if (j.y == DOWN) player.facing = Direction::DOWN;
-            if (j.x == LEFT) player.facing = Direction::LEFT;
-            if (j.x == RIGHT) player.facing = Direction::RIGHT;
+            joy = read_joystick();
+            if (joy.y == UP) player.facing = Direction::UP;
+            if (joy.y == DOWN) player.facing = Direction::DOWN;
+            if (joy.x == LEFT) player.facing = Direction::LEFT;
+            if (joy.x == RIGHT) player.facing = Direction::RIGHT;
 
         } else if (gameState == GameState::GAME_OVER) {
             // if (e.type == SDL_KEYDOWN) {
@@ -185,8 +185,8 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             //     selectedOption = 0;
             // }
             // joystick
-            joystick j = read_joystick();
-            if (j.x!=NEUTRAL||j.y!=NEUTRAL||j.btn==PRESSED) {
+            joy = read_joystick();
+            if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED) {
                 gameState = GameState::MENU;
                 selectedOption = 0;
             }
