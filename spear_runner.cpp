@@ -75,7 +75,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
-                if (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED)
+                if (joy.btn==PRESSED)
                     gameState = SpearRunnerGameState::MENU;
             }
         }
