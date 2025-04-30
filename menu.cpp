@@ -21,7 +21,7 @@ void read_joystick() {
                 if (joy != curr_joy) {
                     joy_action = true;
                     joy = curr_joy;
-                } else {
+                    usleep(10000);
                     joy_action = false;
                 }
             } else {

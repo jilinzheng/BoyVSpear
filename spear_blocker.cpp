@@ -132,66 +132,29 @@ void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState,
 }
 
 int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame){
-    SDL_Event e;
-    // while (SDL_PollEvent(&e) != 0) {
-
-        if (e.type == SDL_QUIT) { running = false; return -1;}
-
-        if (gameState == GameState::MENU) {
-            // if (e.type == SDL_KEYDOWN) {
-            //      switch (e.key.keysym.sym) {
-            //         case SDLK_UP:    case SDLK_w: selectedOption = (selectedOption - 1 + 4) % 4; break;
-            //         case SDLK_DOWN:  case SDLK_s: selectedOption = (selectedOption + 1) % 4; break;
-            //         case SDLK_RETURN: case SDLK_SPACE:
-            //             if (selectedOption == 0) difficulty = Difficulty::EASY;
-            //             else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
-            //             else if (selectedOption==2) difficulty = Difficulty::HARD;
-            //             else RETURN_TO_MENU = true;
-            //             startGame = true;
-            //             break;
-            //         case SDLK_z: running = false; break;
-            //     }
-            // }
-            // joystick
-            // joy = read_joystick();
-            if (joy_action && joy.y == UP) selectedOption = (selectedOption-1+4)%4;
-            if (joy_action && joy.y == DOWN) selectedOption = (selectedOption+1)%4;
-            if (joy_action && joy.btn == PRESSED) {
-                if (selectedOption == 0) difficulty = Difficulty::EASY;
-                else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
-                else if (selectedOption==2) difficulty = Difficulty::HARD;
-                else RETURN_TO_MENU = true;
-                startGame = true;
-            }
-
-        } else if (gameState == GameState::PLAYING) {
-            // if (e.type == SDL_KEYDOWN) {
-            //     switch (e.key.keysym.sym) {
-            //         case SDLK_UP:    case SDLK_w: player.facing = Direction::UP; break;
-            //         case SDLK_DOWN:  case SDLK_s: player.facing = Direction::DOWN; break;
-            //         case SDLK_LEFT:  case SDLK_a: player.facing = Direction::LEFT; break;
-            //         case SDLK_RIGHT: case SDLK_d: player.facing = Direction::RIGHT; break;
-            //     }
-            // }
-            // // joystick
-            // joy = read_joystick();
-            if (joy_action && joy.y == UP) player.facing = Direction::UP;
-            if (joy_action && joy.y == DOWN) player.facing = Direction::DOWN;
-            if (joy_action && joy.x == LEFT) player.facing = Direction::LEFT;
-            if (joy_action && joy.x == RIGHT) player.facing = Direction::RIGHT;
-
-        } else if (gameState == GameState::GAME_OVER) {
-            // if (e.type == SDL_KEYDOWN) {
-            //     gameState = GameState::MENU;
-            //     selectedOption = 0;
-            // }
-            // joystick
-            // joy = read_joystick();
-            if (joy_action && (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED)) {
-                gameState = GameState::MENU;
-                selectedOption = 0;
-            }
+    if (gameState == GameState::MENU) {
+        if (joy_action && joy.y == UP) selectedOption = (selectedOption-1+4)%4;
+        if (joy_action && joy.y == DOWN) selectedOption = (selectedOption+1)%4;
+        if (joy_action && joy.btn == PRESSED) {
+            if (selectedOption == 0) difficulty = Difficulty::EASY;
+            else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
+            else if (selectedOption==2) difficulty = Difficulty::HARD;
+            else RETURN_TO_MENU = true;
+            startGame = true;
         }
+
+    } else if (gameState == GameState::PLAYING) {
+        if (joy_action && joy.y == UP) player.facing = Direction::UP;
+        if (joy_action && joy.y == DOWN) player.facing = Direction::DOWN;
+        if (joy_action && joy.x == LEFT) player.facing = Direction::LEFT;
+        if (joy_action && joy.x == RIGHT) player.facing = Direction::RIGHT;
+
+    } else if (gameState == GameState::GAME_OVER) {
+        if (joy_action && (joy.x!=NEUTRAL||joy.y!=NEUTRAL||joy.btn==PRESSED)) {
+            gameState = GameState::MENU;
+            selectedOption = 0;
+        }
+    }
     return 0;
 }
 
