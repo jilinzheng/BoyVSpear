@@ -89,33 +89,33 @@ int main(int argc, char* argv[]) {
         SDL_Delay(16);
 
         // Handle events
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                running = false;
-            } else if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP) {
-                    selectedGame = (selectedGame - 1 + 2) % 2;
-                } else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN) {
-                    selectedGame = (selectedGame + 1) % 2;
-                } else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-                    if (selectedGame == 0) {
-                        if(SpearDodgerMain(window, renderer) == -1)
-                        {
-                            printf("exiting");
-                            running = false;
-                        }
-                    } else if (selectedGame == 1) {
-                        if(SpearRunnerMain(window, renderer) == -1)
-                        {
-                            running = false;
-                        }
-                    }
-                } else if (e.key.keysym.sym == SDLK_ESCAPE) {
-                    running = false;
-                }
-            }
-        }
+        // SDL_Event e;
+        // while (SDL_PollEvent(&e)) {
+        //     if (e.type == SDL_QUIT) {
+        //         running = false;
+        //     } else if (e.type == SDL_KEYDOWN) {
+        //         if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP) {
+        //             selectedGame = (selectedGame - 1 + 2) % 2;
+        //         } else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN) {
+        //             selectedGame = (selectedGame + 1) % 2;
+        //         } else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
+        //             if (selectedGame == 0) {
+        //                 if(SpearDodgerMain(window, renderer) == -1)
+        //                 {
+        //                     printf("exiting");
+        //                     running = false;
+        //                 }
+        //             } else if (selectedGame == 1) {
+        //                 if(SpearRunnerMain(window, renderer) == -1)
+        //                 {
+        //                     running = false;
+        //                 }
+        //             }
+        //         } else if (e.key.keysym.sym == SDLK_ESCAPE) {
+        //             running = false;
+        //         }
+        //     }
+        // }
 
         joystick j = read_joystick();
         if (j.y == UP) selectedGame = (selectedGame-1+2)%2;

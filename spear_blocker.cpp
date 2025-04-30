@@ -137,20 +137,20 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
         if (e.type == SDL_QUIT) { running = false; return -1;}
 
         if (gameState == GameState::MENU) {
-            if (e.type == SDL_KEYDOWN) {
-                 switch (e.key.keysym.sym) {
-                    case SDLK_UP:    case SDLK_w: selectedOption = (selectedOption - 1 + 4) % 4; break;
-                    case SDLK_DOWN:  case SDLK_s: selectedOption = (selectedOption + 1) % 4; break;
-                    case SDLK_RETURN: case SDLK_SPACE:
-                        if (selectedOption == 0) difficulty = Difficulty::EASY;
-                        else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
-                        else if (selectedOption==2) difficulty = Difficulty::HARD;
-                        else RETURN_TO_MENU = true;
-                        startGame = true;
-                        break;
-                    case SDLK_z: running = false; break;
-                }
-            }
+            // if (e.type == SDL_KEYDOWN) {
+            //      switch (e.key.keysym.sym) {
+            //         case SDLK_UP:    case SDLK_w: selectedOption = (selectedOption - 1 + 4) % 4; break;
+            //         case SDLK_DOWN:  case SDLK_s: selectedOption = (selectedOption + 1) % 4; break;
+            //         case SDLK_RETURN: case SDLK_SPACE:
+            //             if (selectedOption == 0) difficulty = Difficulty::EASY;
+            //             else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
+            //             else if (selectedOption==2) difficulty = Difficulty::HARD;
+            //             else RETURN_TO_MENU = true;
+            //             startGame = true;
+            //             break;
+            //         case SDLK_z: running = false; break;
+            //     }
+            // }
             // joystick
             joystick j = read_joystick();
             if (j.y == UP) selectedOption = (selectedOption-1+4)%4;
@@ -164,14 +164,14 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             }
 
         } else if (gameState == GameState::PLAYING) {
-            if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:    case SDLK_w: player.facing = Direction::UP; break;
-                    case SDLK_DOWN:  case SDLK_s: player.facing = Direction::DOWN; break;
-                    case SDLK_LEFT:  case SDLK_a: player.facing = Direction::LEFT; break;
-                    case SDLK_RIGHT: case SDLK_d: player.facing = Direction::RIGHT; break;
-                }
-            }
+            // if (e.type == SDL_KEYDOWN) {
+            //     switch (e.key.keysym.sym) {
+            //         case SDLK_UP:    case SDLK_w: player.facing = Direction::UP; break;
+            //         case SDLK_DOWN:  case SDLK_s: player.facing = Direction::DOWN; break;
+            //         case SDLK_LEFT:  case SDLK_a: player.facing = Direction::LEFT; break;
+            //         case SDLK_RIGHT: case SDLK_d: player.facing = Direction::RIGHT; break;
+            //     }
+            // }
             // // joystick
             joystick j = read_joystick();
             if (j.y == UP) player.facing = Direction::UP;
@@ -180,10 +180,10 @@ int HandleInput(bool& running, Player& player, GameState& gameState, int& select
             if (j.x == RIGHT) player.facing = Direction::RIGHT;
 
         } else if (gameState == GameState::GAME_OVER) {
-            if (e.type == SDL_KEYDOWN) {
-                gameState = GameState::MENU;
-                selectedOption = 0;
-            }
+            // if (e.type == SDL_KEYDOWN) {
+            //     gameState = GameState::MENU;
+            //     selectedOption = 0;
+            // }
             // joystick
             joystick j = read_joystick();
             if (j.x!=NEUTRAL||j.y!=NEUTRAL||j.btn==PRESSED) {
