@@ -1,12 +1,13 @@
 #include "spear_blocker.h"
-#include <ctime>   // For time()
+
 
 int SPEAR_COUNTER = 0; // Counter for spears
 int RETURN_TO_MENU = 0; // Flag to return to menu
 const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20; // Keep block zone relative
 
+
 // --- Main Function ---
-int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
+int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
     TTF_Font* font = nullptr;
 
     font = TTF_OpenFont(FONT_PATH, 28);
@@ -48,20 +49,23 @@ int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     std::vector<Spear> spears;
 
+
     // --- Game Loop ---
     while (running) {
+
         startGame = false;
 
-        if(HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame) == -1)
+        if (HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame) == -1)
         {
             return -1;
         }
 
-        if(!running) break;
-    
+        if (!running) break;
+
         switch (gameState) {
             case GameState::MENU:
                 if (startGame) {
+                    SPEAR_COUNTER = 0;
                     currentSettings = GetSettingsForDifficulty(difficulty);
                     if (RETURN_TO_MENU==1)
                     {
@@ -130,41 +134,45 @@ void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState,
 }
 
 int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame){
-    SDL_Event e;
-    while (SDL_PollEvent(&e) != 0) {
-        if (e.type == SDL_QUIT) { running = false; return -1;}
+    if (gameState == GameState::MENU) {
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            std::cout << "joy_action = false" << "\n";
+            if (joy.y == UP) selectedOption = (selectedOption-1+4)%4;
+            if (joy.y == DOWN) selectedOption = (selectedOption+1)%4;
+            if (joy.btn == PRESSED) {
+                if (selectedOption == 0) difficulty = Difficulty::EASY;
+                else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
+                else if (selectedOption==2) difficulty = Difficulty::HARD;
+                else RETURN_TO_MENU = true;
+                startGame = true;
+            }
+        }
 
-        if (gameState == GameState::MENU) {
-            if (e.type == SDL_KEYDOWN) {
-                 switch (e.key.keysym.sym) {
-                    case SDLK_UP:    case SDLK_w: selectedOption = (selectedOption - 1 + 4) % 4; break;
-                    case SDLK_DOWN:  case SDLK_s: selectedOption = (selectedOption + 1) % 4; break;
-                    case SDLK_RETURN: case SDLK_SPACE:
-                        if (selectedOption == 0) difficulty = Difficulty::EASY;
-                        else if (selectedOption == 1) difficulty = Difficulty::MEDIUM;
-                        else if (selectedOption==2) difficulty = Difficulty::HARD;
-                        else RETURN_TO_MENU = true;
-                        startGame = true;
-                        break;
-                    case SDLK_z: running = false; break;
-                }
+    } else if (gameState == GameState::PLAYING) {
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            std::cout << "joy_action = false" << "\n";
+            if (joy.y == UP) player.facing = Direction::UP;
+            if (joy.y == DOWN) player.facing = Direction::DOWN;
+            if (joy.x == LEFT) player.facing = Direction::LEFT;
+            if (joy.x == RIGHT) player.facing = Direction::RIGHT;
+        }
+
+    } else if (gameState == GameState::GAME_OVER) {
+        std::lock_guard<std::mutex> lock(joy_mutex);
+        if (joy_action) {
+            joy_action = false;
+            std::cout << "joy_action = false" << "\n";
+            if (joy.btn==PRESSED) {
+                gameState = GameState::MENU;
+                selectedOption = 0;
             }
-        } else if (gameState == GameState::PLAYING) {
-            if (e.type == SDL_KEYDOWN) {
-                 switch (e.key.keysym.sym) {
-                    case SDLK_UP:    case SDLK_w: player.facing = Direction::UP; break;
-                    case SDLK_DOWN:  case SDLK_s: player.facing = Direction::DOWN; break;
-                    case SDLK_LEFT:  case SDLK_a: player.facing = Direction::LEFT; break;
-                    case SDLK_RIGHT: case SDLK_d: player.facing = Direction::RIGHT; break;
-                 }
-            }
-        } else if (gameState == GameState::GAME_OVER) {
-             if (e.type == SDL_KEYDOWN) {
-                 gameState = GameState::MENU;
-                 selectedOption = 0;
-             }
         }
     }
+
     return 0;
 }
 
@@ -236,6 +244,7 @@ void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings) {
     newSpear.rect.x = static_cast<int>(newSpear.x); newSpear.rect.y = static_cast<int>(newSpear.y);
     spears.push_back(newSpear);
 }
+
 void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
