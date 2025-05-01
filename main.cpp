@@ -6,7 +6,6 @@
 #include "spear_runner.h"
 #include "assets.h"
 
-// Screen size is now 277
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
@@ -26,8 +25,49 @@ int main(int argc, char* argv[]) {
     bool running = true;
     int selectedGame = 0;
 
+    // joystick thread
+    std::thread joystick_thread;
+
     while (running) {
-         // Render Menu
+        // Check if stream is open, if not, try to open it.
+        if (!fifo_stream.is_open()) {
+            // Optional: Check if the FIFO file exists and is a FIFO before opening
+            struct stat stat_buf;
+            if (stat(FIFO_PATH, &stat_buf) == 0) {
+                if (!S_ISFIFO(stat_buf.st_mode)) {
+                    std::cerr << "Error: " << FIFO_PATH << " exists but is not a FIFO." << std::endl;
+                    sleep(5); // Wait before retrying
+                    continue;
+                }
+            } else {
+                // File doesn't exist yet, wait for Python script to create it
+                if (errno == ENOENT) {
+                std::cout << "FIFO not found, waiting..." << std::endl;
+                } else {
+                perror("Error checking FIFO status"); // Other stat error
+                }
+                sleep(2);
+                continue;
+            }
+
+            // Open the FIFO for reading [4] [6]
+            // This will block until the Python script opens it for writing [6]
+            std::cout << "Attempting to open FIFO: " << FIFO_PATH << std::endl;
+            fifo_stream.open(FIFO_PATH); // Opens in read mode by default
+
+            if (!fifo_stream.is_open()) {
+                std::cerr << "Error opening FIFO: " << FIFO_PATH << ". Retrying..." << std::endl;
+                // perror("open"); // Can use perror if using low-level open()
+                sleep(2); // Wait before retrying
+                continue;
+            } else {
+                std::cout << "FIFO opened successfully." << std::endl;
+                // launch the joystick reading thread
+                joystick_thread = std::thread(read_joystick);
+            }
+        }
+
+        // Render Menu
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
@@ -52,31 +92,27 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
 
-        // Handle events
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                running = false;
-            } else if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP) {
-                    selectedGame = (selectedGame - 1 + 2) % 2;
-                } else if (e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN) {
-                    selectedGame = (selectedGame + 1) % 2;
-                } else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-                    if (selectedGame == 0) {
-                        if(SpearDodgerMain(window, renderer) == -1)
-                        {
-                            printf("exiting");
-                            running = false;
-                        }
-                        
-                    } else if (selectedGame == 1) {
-                        if(SpearRunnerMain(window, renderer) == -1)
-                        {
-                            running = false;
-                        }
-                    }
-                } else if (e.key.keysym.sym == SDLK_ESCAPE) {
+        bool descend_menu = false, ascend_menu = false, enter_game = false;
+        {   // scope the mutex
+            std::lock_guard<std::mutex> lock(joy_mutex);
+            if (joy_action) {
+                joy_action = false;
+                if (joy.y == UP) ascend_menu = true;
+                else if (joy.y == DOWN) descend_menu = true;
+                else if (joy.btn == PRESSED) enter_game = true;
+            }
+        }   // automatically frees here
+        if (ascend_menu) selectedGame = (selectedGame-1+2)%2;
+        else if (descend_menu) selectedGame = (selectedGame+1)%2;
+        else if (enter_game) {
+            if (selectedGame==0) {
+                if (SpearBlockerMain(window, renderer)) {
+                    printf("Exiting");
+                    running = false;
+                }
+            }
+            else if (selectedGame==1) {
+                if (SpearRunnerMain(window, renderer) == -1) {
                     running = false;
                 }
             }
@@ -89,6 +125,8 @@ int main(int argc, char* argv[]) {
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();
+
+    if (joystick_thread.joinable()) joystick_thread.join();
 
     return 0;
 }

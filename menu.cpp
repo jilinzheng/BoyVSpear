@@ -1,5 +1,53 @@
 #include "menu.h"
 
+const char* FIFO_PATH = "/tmp/joystick_fifo";
+std::ifstream fifo_stream;
+std::string line;
+Joystick joy, old_joy = {-1,-1,-1};
+bool joy_action = false;    // flag for others accessing to use the input
+                            // otherwise don't update using joy to prevent "infinite" loop
+std::mutex joy_mutex;
+
+// read line by line from the FIFO stream
+void read_joystick() {
+    while (true) {
+        if (std::getline(fifo_stream, line)) {
+            // process the received line (X Y Button)
+            std::cout << "Received: " << line << std::endl;
+
+            std::stringstream ss(line);
+            Joystick new_joy;
+            if (ss >> new_joy.x >> new_joy.y >> new_joy.btn) {
+                std::lock_guard<std::mutex> lock(joy_mutex);
+                std::cout << "Parsed -> X: " << new_joy.x << ", Y: " << new_joy.y << ", Btn: " << new_joy.btn <<"\n";
+                if (new_joy != old_joy) joy_action = true;
+                joy = new_joy;
+                old_joy = new_joy;
+                std::cout << "joy_action = true" << "\n";
+            } else {
+                std::cerr << "Warning: Could not parse line: " << line << "\n";
+            }
+
+        } else {
+            std::cout<<"getline failed\n"<<"\n";
+            // getline failed; this could mean the writer closed the pipe (EOF)
+            // or some other error occurred
+            if (fifo_stream.eof()) {
+                std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
+            } else if (fifo_stream.fail()) {
+                std::cerr << "Stream error occurred. Re-opening..." << std::endl;
+            } else {
+                    std::cerr << "Unknown stream state. Re-opening..." << std::endl;
+            }
+            fifo_stream.close();    // close the stream
+            fifo_stream.clear();    // clear error flags
+            sleep(1); // small delay before trying to reopen
+            continue;
+        }
+    }
+}
+
+
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color) {
     if (!font) return;
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
@@ -11,7 +59,7 @@ void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
-    
+
 void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption) {
     SDL_Color white = {255, 255, 255, 255};
     SDL_Color yellow = {255, 255, 0, 255};

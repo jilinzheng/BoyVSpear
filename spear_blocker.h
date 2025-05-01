@@ -40,7 +40,7 @@ void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
 void RenderSpear(SDL_Renderer* renderer, const Spear& spear);
 bool CheckSpearInBlockZone(const Spear& spear, const SDL_Rect& blockZone);
 GameSettings GetSettingsForDifficulty(Difficulty difficulty);
-int SpearDodgerMain(SDL_Window* window, SDL_Renderer* renderer);
+int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer);
 
 
 #endif // SPEAR_DODGER_H
