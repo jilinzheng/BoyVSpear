@@ -5,14 +5,14 @@ std::ifstream fifo_stream;
 std::string line;
 Joystick joy, old_joy = {-1,-1,-1};
 bool joy_action = false;    // flag for others accessing to use the input
-                    // otherwise don't update using joy to prevent "infinite" loop
+                            // otherwise don't update using joy to prevent "infinite" loop
 std::mutex joy_mutex;
 
-// Read line by line from the FIFO stream
+// read line by line from the FIFO stream
 void read_joystick() {
     while (true) {
         if (std::getline(fifo_stream, line)) {
-            // Process the received line (X Y Button)
+            // process the received line (X Y Button)
             std::cout << "Received: " << line << std::endl;
 
             std::stringstream ss(line);
@@ -30,8 +30,8 @@ void read_joystick() {
 
         } else {
             std::cout<<"getline failed\n"<<"\n";
-            // // getline failed. This could mean the writer closed the pipe (EOF)
-            // // or some other error occurred.
+            // getline failed; this could mean the writer closed the pipe (EOF)
+            // or some other error occurred
             if (fifo_stream.eof()) {
                 std::cout << "Writer closed the FIFO (EOF reached). Re-opening..." << std::endl;
             } else if (fifo_stream.fail()) {
@@ -39,9 +39,9 @@ void read_joystick() {
             } else {
                     std::cerr << "Unknown stream state. Re-opening..." << std::endl;
             }
-            fifo_stream.close();    // Close the stream
-            fifo_stream.clear();    // Clear error flags
-            sleep(1); // Small delay before trying to reopen
+            fifo_stream.close();    // close the stream
+            fifo_stream.clear();    // clear error flags
+            sleep(1); // small delay before trying to reopen
             continue;
         }
     }

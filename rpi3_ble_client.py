@@ -1,9 +1,10 @@
 import asyncio
-from bleak import BleakScanner, BleakClient
-from bleak.backends.characteristic import BleakGATTCharacteristic
 import sys
 import os
 import stat
+from bleak import BleakScanner, BleakClient
+from bleak.backends.characteristic import BleakGATTCharacteristic
+
 
 # make sure UUIDs match UUIDs in ESP32 code
 TARGET_DEVICE_NAME = "ESP32_Joystick_Server"
@@ -11,6 +12,8 @@ SERVICE_UUID = "90920b02-5bb3-4d6d-8322-d744ccf56a04"
 CHARACTERISTIC_UUID_X = "c7db9d15-3b2c-4e76-b7c1-57e6178dfb6c"
 CHARACTERISTIC_UUID_Y = "d43bfa36-280a-495c-9e10-99f5d1bdc43e"
 CHARACTERISTIC_UUID_BTN = "0bc7ad76-3ffd-4da4-8e3e-09613eddf3c4"
+
+# path of fifo to write to
 FIFO_PATH = "/tmp/joystick_fifo"
 
 
@@ -57,7 +60,7 @@ def notification_handler(characteristic: BleakGATTCharacteristic, data: bytearra
             print(f"Unknown Characteristic UUID: {char_uuid}, Data: {decoded_data}")
             return
 
-        # if data changed and FIFO is ready, write the current state
+        # if data changed and fifo is ready, write the current state
         if data_changed and fifo_ready and fifo_out:
             try:
                 # format: X Y Button\n (using current state)
@@ -83,10 +86,10 @@ def notification_handler(characteristic: BleakGATTCharacteristic, data: bytearra
 async def main():
     global fifo_out, fifo_ready
 
-    # create FIFO
+    # create fifo
     try:
         if os.path.exists(FIFO_PATH):
-            # check if it's actually a FIFO file
+            # check if it's actually a fifo file
             if not stat.S_ISFIFO(os.stat(FIFO_PATH).st_mode):
                 print(f"Error: {FIFO_PATH} exists but is not a FIFO. Please remove it.")
                 return
@@ -111,7 +114,7 @@ async def main():
 
     if target_address is None:
         print(f"Could not find target device '{TARGET_DEVICE_NAME}'.")
-        # clean up FIFO if we created it and are exiting
+        # clean up fifo if we created it and are exiting
         if not os.path.exists(FIFO_PATH):
             # only remove if we potentially created it AND failed to find device
             try:
@@ -121,7 +124,7 @@ async def main():
                 print(f"Error removing FIFO on exit: {e}")
         return
 
-    # open FIFO for writing
+    # open fifo for writing
     print(f"Opening FIFO {FIFO_PATH} for writing... Waiting for reader...")
     try:
         fifo_out = open(FIFO_PATH, "w")
@@ -129,10 +132,8 @@ async def main():
         print("FIFO opened successfully. Reader is connected.")
     except Exception as e:
         print(f"Error opening FIFO for writing: {e}")
-        # Clean up FIFO only if we definitely created it in this run
-        if not os.path.exists(
-            FIFO_PATH
-        ):  # This check might be tricky if it failed mid-creation
+        # clean up FIFO only if we created it in this run
+        if not os.path.exists(FIFO_PATH):
             try:
                 os.remove(FIFO_PATH)
                 print(f"Removed FIFO {FIFO_PATH}")
@@ -186,7 +187,7 @@ async def main():
         except Exception as e:
             print(f"Error closing FIFO: {e}")
 
-    # remove FIFO on normal exit
+    # remove fifo on normal exit
     try:
         if os.path.exists(FIFO_PATH) and stat.S_ISFIFO(os.stat(FIFO_PATH).st_mode):
             os.remove(FIFO_PATH)
