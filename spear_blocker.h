@@ -13,6 +13,7 @@
 int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer);
 
 namespace spear_blocker {
+    inline int RETURN_TO_MENU; // Flag to return to menu
 // --- Enums ---
     enum class GameState {
         MENU,

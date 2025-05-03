@@ -2,7 +2,6 @@
 
 
 int SPEAR_COUNTER = 0; // Counter for spears
-int RETURN_TO_MENU = 0; // Flag to return to menu
 const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20; // Keep block zone relative
 
 using namespace spear_blocker;
@@ -55,10 +54,8 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
         startGame = false;
 
-        if (HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame) == -1)
-        {
-            return -1;
-        }
+        HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame);
+   
 
         if (!running) break;
 
@@ -173,7 +170,6 @@ namespace spear_blocker {
                 }
             }
         }
-
         return 0;
     }
 

@@ -39,7 +39,13 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
         float moveX = 0, moveY = 0;
         // Handle input
         if (HandleInput(player, gameState, selectedOption, gameOver, moveX, moveY, settings, frameCount, spears) == -1) {
-            break;
+            return -1;
+        }
+        if (gameState == GameState::MENU) {
+            if (RETURN_TO_MENU) {
+                RETURN_TO_MENU = 0;
+                return 0; // Exit the game loop
+            }
         }
         // Gameplay logic
         if (gameState == GameState::PLAYING && !gameOver) {
@@ -89,6 +95,7 @@ namespace spear_runner
                 else if (joy.y == DOWN) selectedOption = (selectedOption + 1) % 4;
                 else if (joy.btn == PRESSED) {
                     if(selectedOption == 3) {
+                        RETURN_TO_MENU = 1; // Back selected
                         return 0; // Back selected
                     } else {
                         settings = GetSettingsForDifficulty(static_cast<Difficulty>(selectedOption));

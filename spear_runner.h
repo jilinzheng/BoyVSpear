@@ -12,7 +12,8 @@
 int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
 
 namespace spear_runner
-    {
+{
+    inline int RETURN_TO_MENU; // Flag to return to menu
     enum class GameState {
         MENU,
         PLAYING,
