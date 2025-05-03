@@ -9,26 +9,31 @@
 #include "menu.h"
 #include <ctime>   // For time()
 
+namespace spear_runner
+    {
+    enum class GameState {
+        MENU,
+        PLAYING,
+        GAME_OVER
+    };
 
+    struct Settings {
+        int spearSpeed;
+        int spawnRate;
+    };
 
-enum class SpearRunnerGameState {
-    MENU,
-    PLAYING,
-    GAME_OVER
-};
+    enum class Difficulty {
+        EASY,
+        MEDIUM,
+        HARD
+    };
+    // --- Function Prototypes ---
+    Settings GetSettingsForDifficulty(Difficulty difficulty);
+    int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
+    int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, float& moveX, float& moveY);
+    void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
+    void SpawnSpears(std::vector<Spear>& spears, const Settings& settings);
+    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount);
+}
 
-struct RunnerSettings {
-    int spearSpeed;
-    int spawnRate;
-};
-
-enum class SpearRunnerDifficulty {
-    EASY,
-    MEDIUM,
-    HARD
-};
-// --- Function Prototypes ---
-
-int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
-void RenderRunnerMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption);
 #endif // SPEAR_RUNNER_H
