@@ -34,7 +34,7 @@ namespace spear_runner
     int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, float& moveX, float& moveY);
     void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
     void SpawnSpears(std::vector<Spear>& spears, const Settings& settings);
-    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount);
+    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount, float moveX, float moveY);
 }
 
 #endif // SPEAR_RUNNER_H

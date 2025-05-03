@@ -24,7 +24,7 @@ namespace spear_blocker {
         EASY, MEDIUM, HARD
     };
 
-    struct GameSettings {
+    struct Settings {
         int spearSpeed;
         int spawnRate;
         int spearMult;
@@ -32,12 +32,12 @@ namespace spear_blocker {
 
     // --- Function Prototypes ---
     int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
-    void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings);
-    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings);
-    void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings);
+    void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const Settings& settings);
+    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const Settings& settings);
+    void SpawnSpear(std::vector<Spear>& spears, const Settings& settings);
     void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
     bool CheckSpearInBlockZone(const Spear& spear, const SDL_Rect& blockZone);
-    GameSettings GetSettingsForDifficulty(Difficulty difficulty);
+    Settings GetSettingsForDifficulty(Difficulty difficulty);
 }
 
 #endif // SPEAR_DODGER_H

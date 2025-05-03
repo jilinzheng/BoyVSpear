@@ -36,9 +36,9 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
     std::vector<Spear> spears;
 
     while (true) {
-
+        float moveX = 0, moveY = 0;
         // Handle input
-        if (HandleInput(player, gameState, selectedOption, gameOver, player.x, player.y) == -1) {
+        if (HandleInput(player, gameState, selectedOption, gameOver, moveX, moveY) == -1) {
             break;
         }
 
@@ -70,7 +70,7 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
             // const Uint8* keys = SDL_GetKeyboardState(NULL);
 
-            UpdateGame(player, spears, gameOver, settings, gameState, frameCount);
+            UpdateGame(player, spears, gameOver, settings, gameState, frameCount, moveX, moveY);
         }
 
         // --- Render ---
@@ -158,9 +158,8 @@ namespace spear_runner
         spears.push_back(newSpear);
     }
 
-    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount) {
+    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount, float moveX, float moveY) {
 
-        float moveX = 0, moveY = 0;
         // if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) moveY = -PLAYER_SPEED;
         // if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) moveY = PLAYER_SPEED;
         // if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) moveX = -PLAYER_SPEED;

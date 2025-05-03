@@ -24,7 +24,7 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
     bool running = true;
     GameState gameState = GameState::MENU;
     Difficulty difficulty = Difficulty::MEDIUM;
-    GameSettings currentSettings = GetSettingsForDifficulty(difficulty);
+    Settings currentSettings = GetSettingsForDifficulty(difficulty);
     bool gameOverFlag = false;
     int frameCount = 0;
     int menuSelectedOption = 0;
@@ -114,8 +114,8 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
 // --- Function Definitions ---
 
 namespace spear_blocker {
-    GameSettings GetSettingsForDifficulty(Difficulty difficulty) {
-        GameSettings settings;
+    Settings GetSettingsForDifficulty(Difficulty difficulty) {
+        Settings settings;
         switch (difficulty) {
             case Difficulty::EASY:   settings.spearSpeed = 2; settings.spawnRate = 70; settings.spearMult = 1; break;
             case Difficulty::MEDIUM: settings.spearSpeed = 3; settings.spawnRate = 50; settings.spearMult = 2; break;
@@ -124,7 +124,7 @@ namespace spear_blocker {
         return settings;
     }
 
-    void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const GameSettings& settings) {
+    void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const Settings& settings) {
         player.x = static_cast<float>(SCREEN_WIDTH / 2);
         player.y = static_cast<float>(SCREEN_HEIGHT / 2);
         player.rect.x = static_cast<int>(player.x - player.rect.w / 2.0f);
@@ -177,7 +177,7 @@ namespace spear_blocker {
         return 0;
     }
 
-    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const GameSettings& settings) {
+    void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const Settings& settings) {
         for (int i = spears.size() - 1; i >= 0; --i) {
             // Move spear
             switch (spears[i].originDirection) {
@@ -221,7 +221,7 @@ namespace spear_blocker {
                 tipY >= blockZone.y && tipY < blockZone.y + blockZone.h);
     }
 
-    void SpawnSpear(std::vector<Spear>& spears, const GameSettings& settings) {
+    void SpawnSpear(std::vector<Spear>& spears, const Settings& settings) {
         Spear newSpear;
         newSpear.speed = settings.spearSpeed;
         int side = rand() % 4;
