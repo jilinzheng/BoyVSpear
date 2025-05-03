@@ -38,26 +38,9 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
     while (true) {
         float moveX = 0, moveY = 0;
         // Handle input
-        if (HandleInput(player, gameState, selectedOption, gameOver, moveX, moveY) == -1) {
+        if (HandleInput(player, gameState, selectedOption, gameOver, moveX, moveY, settings, frameCount, spears) == -1) {
             break;
         }
-
-        if (gameState == GameState::MENU) {
-            if (selectedOption == 3) {
-                return 0; // Back selected
-            } else {
-                settings = GetSettingsForDifficulty(static_cast<Difficulty>(selectedOption));
-                gameOver = false;
-                frameCount = 0;
-                spears.clear();
-                player.x = SCREEN_WIDTH / 2.0f;
-                player.y = SCREEN_HEIGHT / 2.0f;
-                player.rect.x = static_cast<int>(player.x - player.rect.w / 2);
-                player.rect.y = static_cast<int>(player.y - player.rect.h / 2);
-                gameState = GameState::PLAYING;
-            }
-        }
-
         // Gameplay logic
         if (gameState == GameState::PLAYING && !gameOver) {
             // std::lock_guard<std::mutex> lock(joy_mutex);
@@ -96,7 +79,8 @@ namespace spear_runner
         return settings;
     }
 
-    int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, float& moveX, float& moveY) {
+    int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, \
+                    float& moveX, float& moveY, Settings settings, int& frameCount, std::vector<Spear>& spears) {
         if (gameState == GameState::MENU) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
@@ -104,9 +88,23 @@ namespace spear_runner
                 if (joy.y == UP) selectedOption = (selectedOption - 1 + 4) % 4;
                 else if (joy.y == DOWN) selectedOption = (selectedOption + 1) % 4;
                 else if (joy.btn == PRESSED) {
+                    if(selectedOption == 3) {
+                        return 0; // Back selected
+                    } else {
+                        settings = GetSettingsForDifficulty(static_cast<Difficulty>(selectedOption));
+                        gameOver = false;
+                        frameCount = 0;
+                        spears.clear();
+                        player.x = SCREEN_WIDTH / 2.0f;
+                        player.y = SCREEN_HEIGHT / 2.0f;
+                        player.rect.x = static_cast<int>(player.x - player.rect.w / 2);
+                        player.rect.y = static_cast<int>(player.y - player.rect.h / 2);
+                        gameState = GameState::PLAYING;
+                    }
                 }
             }
-        } else if (gameState == GameState::GAME_OVER) {
+        }
+        else if (gameState == GameState::GAME_OVER) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
@@ -131,7 +129,6 @@ namespace spear_runner
         if (gameState == GameState::MENU) {
             SCORE_TIMER = 0;
             RenderMenu(renderer, font, selectedOption);
-            SCORE_TIMER = 0;
             }
          else {
             RenderPlayerCharacter(renderer, player, gameOverFlag, 0);
