@@ -10,6 +10,8 @@
 #include <cstdlib> // For rand() and srand()
 #include <cmath>   // For M_PI, sin, cos
 
+int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer);
+
 namespace spear_blocker {
 // --- Enums ---
     enum class GameState {
@@ -36,7 +38,6 @@ namespace spear_blocker {
     void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
     bool CheckSpearInBlockZone(const Spear& spear, const SDL_Rect& blockZone);
     GameSettings GetSettingsForDifficulty(Difficulty difficulty);
-    int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer);
 }
 
 #endif // SPEAR_DODGER_H

@@ -9,6 +9,8 @@
 #include "menu.h"
 #include <ctime>   // For time()
 
+int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
+
 namespace spear_runner
     {
     enum class GameState {
@@ -29,7 +31,6 @@ namespace spear_runner
     };
     // --- Function Prototypes ---
     Settings GetSettingsForDifficulty(Difficulty difficulty);
-    int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
     int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, float& moveX, float& moveY);
     void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
     void SpawnSpears(std::vector<Spear>& spears, const Settings& settings);
