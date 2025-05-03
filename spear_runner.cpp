@@ -96,7 +96,7 @@ namespace spear_runner
         return settings;
     }
 
-    int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, float& moveX, float& moveY) {
+    void HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, float& moveX, float& moveY) {
         if (gameState == GameState::MENU) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
