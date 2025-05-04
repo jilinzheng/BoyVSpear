@@ -8,7 +8,6 @@ int SCORE_TIMER = 0;
 Uint32 lastIncrementTime = SDL_GetTicks();  // current time in milliseconds
 
 int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
-    srand(time(0));
     TTF_Font* font = nullptr;
     font = TTF_OpenFont(FONT_PATH, 28);
     if (!font) {
@@ -17,6 +16,8 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
         SDL_DestroyRenderer(renderer); SDL_DestroyWindow(window); TTF_Quit(); SDL_Quit();
         return false;
     }
+
+    srand(time(0));
 
     GameState gameState = GameState::MENU;
     int selectedOption = 1; // 0=Easy, 1=Medium, 2=Hard, 3=Back
@@ -37,40 +38,33 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     while (true) {
         float moveX = 0, moveY = 0;
-        // Handle input
+
         if (HandleInput(player, gameState, selectedOption, gameOver, moveX, moveY, settings, frameCount, spears) == -1) {
             return -1;
         }
+
         if (gameState == GameState::MENU) {
             if (RETURN_TO_MENU) {
                 RETURN_TO_MENU = 0;
-                return 0; // Exit the game loop
+                return 0; // exit the game loop
             }
         }
-        // Gameplay logic
+
+        // gameplay logic
         if (gameState == GameState::PLAYING && !gameOver) {
-            // std::lock_guard<std::mutex> lock(joy_mutex);
             // update score
             Uint32 currentTime = SDL_GetTicks();
             if (currentTime > lastIncrementTime + 1000) { // 1000 ms = 1 second
                 SCORE_TIMER++;
                 lastIncrementTime = currentTime;
             }
-
-            // const Uint8* keys = SDL_GetKeyboardState(NULL);
-
             UpdateGame(player, spears, gameOver, settings, gameState, frameCount, moveX, moveY);
         }
-
-        // --- Render ---
         RenderGame(renderer, font, player, spears, gameState, selectedOption, gameOver);
     }
 
     return 0;
 }
-
-
-// Function Definitions
 
 namespace spear_runner
 { 
@@ -94,10 +88,11 @@ namespace spear_runner
                 if (joy.y == UP) selectedOption = (selectedOption - 1 + 4) % 4;
                 else if (joy.y == DOWN) selectedOption = (selectedOption + 1) % 4;
                 else if (joy.btn == PRESSED) {
-                    if(selectedOption == 3) {
-                        RETURN_TO_MENU = 1; // Back selected
-                        return 0; // Back selected
-                    } else {
+                    if (selectedOption == 3) {
+                        RETURN_TO_MENU = 1; // back selected
+                        return 0;           // back selected
+                    }
+                    else {
                         settings = GetSettingsForDifficulty(static_cast<Difficulty>(selectedOption));
                         gameOver = false;
                         frameCount = 0;
@@ -111,6 +106,7 @@ namespace spear_runner
                 }
             }
         }
+
         else if (gameState == GameState::GAME_OVER) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
@@ -119,6 +115,7 @@ namespace spear_runner
                     gameState = GameState::MENU;
             }
         }
+
         if (gameState == GameState::PLAYING && !gameOver) {
             if (joy.y == UP) moveY = -PLAYER_SPEED;
             if (joy.y == DOWN) moveY = PLAYER_SPEED;
@@ -136,14 +133,16 @@ namespace spear_runner
         if (gameState == GameState::MENU) {
             SCORE_TIMER = 0;
             RenderMenu(renderer, font, selectedOption);
-            }
-         else {
+        }
+        else {
             RenderPlayerCharacter(renderer, player, gameOverFlag, 0);
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            RenderScore(renderer, font, SCORE_TIMER); // Render score
+            RenderScore(renderer, font, SCORE_TIMER); // render score
+
             for (auto& spear : spears) {
-                RenderSpear(renderer, spear); // Draw spears
+                RenderSpear(renderer, spear); // draw spears
             }
+
             if (gameState == GameState::GAME_OVER) {
                 RenderGameOver(renderer, font, SCORE_TIMER);
             }
@@ -163,12 +162,6 @@ namespace spear_runner
     }
 
     void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount, float moveX, float moveY) {
-
-        // if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) moveY = -PLAYER_SPEED;
-        // if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) moveY = PLAYER_SPEED;
-        // if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) moveX = -PLAYER_SPEED;
-        // if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) moveX = PLAYER_SPEED;
-
         player.x += moveX;
         player.y += moveY;
         player.rect.x = static_cast<int>(player.x - player.rect.w / 2);
@@ -197,6 +190,7 @@ namespace spear_runner
                 case Direction::NONE: break;
             }
         }
+
         // remove spears that are out of bounds
         for (int i = spears.size() - 1; i >= 0; --i) {
             if (spears[i].rect.x < -100 || spears[i].rect.x > SCREEN_WIDTH + 100 ||

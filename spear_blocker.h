@@ -2,19 +2,18 @@
 #define SPEAR_BLOCKER_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h> // Include SDL_ttf for text rendering
+#include <SDL2/SDL_ttf.h>   // include SDL_ttf for text rendering
 #include <vector>
 #include <string>
 #include "menu.h"
 #include "assets.h"
-#include <cstdlib> // For rand() and srand()
-#include <cmath>   // For M_PI, sin, cos
+#include <cstdlib>          // for rand() and srand()
+#include <cmath>            // for M_PI, sin, cos
 
 int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer);
 
 namespace spear_blocker {
-    inline int RETURN_TO_MENU; // Flag to return to menu
-// --- Enums ---
+    inline int RETURN_TO_MENU; // flag to return to menu
     enum class GameState {
         MENU,
         PLAYING,
@@ -31,7 +30,6 @@ namespace spear_blocker {
         int spearMult;
     };
 
-    // --- Function Prototypes ---
     int HandleInput(bool& running, Player& player, GameState& gameState, int& selectedOption, Difficulty& difficulty, bool& startGame);
     void ResetGame(Player& player, std::vector<Spear>& spears, GameState& gameState, const Settings& settings);
     void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const Settings& settings);
@@ -41,4 +39,4 @@ namespace spear_blocker {
     Settings GetSettingsForDifficulty(Difficulty difficulty);
 }
 
-#endif // SPEAR_DODGER_H
+#endif

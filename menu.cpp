@@ -41,7 +41,7 @@ void read_joystick() {
             }
             fifo_stream.close();    // close the stream
             fifo_stream.clear();    // clear error flags
-            sleep(1); // small delay before trying to reopen
+            sleep(1);               // small delay before trying to reopen
             continue;
         }
     }
@@ -78,7 +78,7 @@ void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font, int score) {
 }
 
 void RenderScore(SDL_Renderer* renderer, TTF_Font* font, int score) {
-    if (!renderer || !font) return; // Safety check
+    if (!renderer || !font) return; // safety check
 
     SDL_Color white = {255, 255, 255, 255};
     std::string scoreText = "Score: " + std::to_string(score);
@@ -88,8 +88,8 @@ void RenderScore(SDL_Renderer* renderer, TTF_Font* font, int score) {
         SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
         if (scoreTexture) {
             SDL_Rect scoreRect;
-            scoreRect.x = 10; // Top-left x
-            scoreRect.y = 10; // Top-left y
+            scoreRect.x = 10; // top-left x
+            scoreRect.y = 10; // top-left y
             scoreRect.w = scoreSurface->w;
             scoreRect.h = scoreSurface->h;
             SDL_RenderCopy(renderer, scoreTexture, nullptr, &scoreRect);
@@ -98,4 +98,3 @@ void RenderScore(SDL_Renderer* renderer, TTF_Font* font, int score) {
         SDL_FreeSurface(scoreSurface);
     }
 }
-

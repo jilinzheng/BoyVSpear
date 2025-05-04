@@ -1,8 +1,6 @@
 #include "assets.h"
-// Character body height/width reference
 
-// Helper function to draw a circle outline using points
-
+// helper function to draw a circle outline using points
 void DrawCircle(SDL_Renderer* renderer, int centreX, int centreY, int radius) {
     const int diameter = (radius * 2);
     int x = (radius - 1); int y = 0; int tx = 1; int ty = 1;
@@ -17,7 +15,7 @@ void DrawCircle(SDL_Renderer* renderer, int centreX, int centreY, int radius) {
     }
 }
 
-// Helper function to draw a filled circle by drawing horizontal lines
+// helper function to draw a filled circle by drawing horizontal lines
 void FillCircle(SDL_Renderer* renderer, int centreX, int centreY, int radius) {
     for (int w = 0; w < radius * 2; w++) {
         for (int h = 0; h < radius * 2; h++) {
@@ -30,9 +28,9 @@ void FillCircle(SDL_Renderer* renderer, int centreX, int centreY, int radius) {
     }
 }
 
-// Render the player character, shield position indicates facing direction
+// render the player character, shield position indicates facing direction
 void RenderPlayerCharacter(SDL_Renderer* renderer, const Player& player, bool isGameOver, int Game_Type) {
-    // Calculate base character dimensions and positions
+    // calculate base character dimensions and positions
     int centerX = static_cast<int>(player.x);
     int centerY = static_cast<int>(player.y);
     int bodyHeight = PLAYER_SIZE;
@@ -46,40 +44,37 @@ void RenderPlayerCharacter(SDL_Renderer* renderer, const Player& player, bool is
     bodyRect.x = centerX - bodyWidth / 2;
     bodyRect.y = headY + headRadius - 5;
 
-    // Determine body color based on game over state
-    SDL_Color bodyColor = {0, 128, 0, 255}; // Normal green
+    // determine body color based on game over state
+    SDL_Color bodyColor = {0, 128, 0, 255}; // normal green
     if (isGameOver) {
-        bodyColor = {0, 60, 0, 255}; // Darker green
+        bodyColor = {0, 60, 0, 255};        // darker green
     }
 
-    // --- Draw Base Character ---
-    // Head
-    SDL_SetRenderDrawColor(renderer, 255, 224, 189, 255); // Skin color
-    FillCircle(renderer, centerX, headY, headRadius); // Fill head
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black outline for head
-    DrawCircle(renderer, centerX, headY, headRadius); // Outline head
-    // Body
+    // draw base character
+    // head
+    SDL_SetRenderDrawColor(renderer, 255, 224, 189, 255);   // skin color
+    FillCircle(renderer, centerX, headY, headRadius);       // fill head
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);         // black outline for head
+    DrawCircle(renderer, centerX, headY, headRadius);       // outline head
+    // body
     SDL_SetRenderDrawColor(renderer, bodyColor.r, bodyColor.g, bodyColor.b, bodyColor.a);
     SDL_RenderFillRect(renderer, &bodyRect);
-    // Eyes
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black
+    // eyes
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);         // Black
     int eyeOffsetX = headRadius / 2;
     int eyeOffsetY = headRadius / 4;
-    // Draw slightly larger eyes
+    // draw slightly larger eyes
     FillCircle(renderer, centerX - eyeOffsetX, headY - eyeOffsetY, 2);
     FillCircle(renderer, centerX + eyeOffsetX, headY - eyeOffsetY, 2);
-    // SDL_RenderDrawPoint(renderer, centerX - eyeOffsetX, headY - eyeOffsetY); // Original single point eyes
-    // SDL_RenderDrawPoint(renderer, centerX + eyeOffsetX, headY - eyeOffsetY);
-    // Mouth
+    // mouth
     int mouthY = headY + eyeOffsetY;
     SDL_RenderDrawLine(renderer, centerX - eyeOffsetX, mouthY, centerX + eyeOffsetX, mouthY);
 
-    // --- Draw Shield based on player.facing (only if not game over) ---
+    // draw shield based on player.facing (only if not game over)
     if (!isGameOver) {
-        int shieldRadius = headRadius + 2; // Slightly larger shield
+        int shieldRadius = headRadius + 2; // slightly larger shield
         int shieldX = centerX;
         int shieldY = centerY;
-        // int shieldOffset = bodyWidth / 2 + shieldRadius + 5; // Original offset calculation (unused)
 
         switch (player.facing) {
             case Direction::UP:
@@ -99,34 +94,46 @@ void RenderPlayerCharacter(SDL_Renderer* renderer, const Player& player, bool is
                 shieldY = bodyRect.y + bodyRect.h / 2;
                 break;
             case Direction::NONE:
-                return; // Don't draw shield if direction is none
+                return; // don't draw shield if direction is none
         }
-        if (Game_Type == 1)
-        {
-            // Draw the shield: Fill first, then outline
-            SDL_SetRenderDrawColor(renderer, 169, 169, 169, 255); // Shield silver
-            FillCircle(renderer, shieldX, shieldY, shieldRadius); // Use FillCircle
 
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Shield outline (Black)
-            DrawCircle(renderer, shieldX, shieldY, shieldRadius); // Use DrawCircle for outline
+        if (Game_Type == 1) {
+            // draw the shield: fill first, then outline
+            SDL_SetRenderDrawColor(renderer, 169, 169, 169, 255);   // shield silver
+            FillCircle(renderer, shieldX, shieldY, shieldRadius);   // use FillCircle
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);         // shield outline (black)
+            DrawCircle(renderer, shieldX, shieldY, shieldRadius);   // use DrawCircle for outline
         }
     }
 }
-
 
 void RenderSpear(SDL_Renderer* renderer, const Spear& spear) {
     int x = spear.rect.x, y = spear.rect.y, w = spear.rect.w, h = spear.rect.h;
     SDL_Vertex vertex[3];
-    vertex[0].color = vertex[1].color = vertex[2].color = {0, 180, 255, 255}; // Spear color
+    vertex[0].color = vertex[1].color = vertex[2].color = {0, 180, 255, 255}; // spear color
 
     switch (spear.originDirection) {
-        case Direction::UP:    vertex[0].position = {(float)x, (float)y}; vertex[1].position = {(float)(x + w), (float)y}; vertex[2].position = {(float)(x + w / 2), (float)(y + h)}; break;
-        case Direction::DOWN:  vertex[0].position = {(float)x, (float)(y + h)}; vertex[1].position = {(float)(x + w), (float)(y + h)}; vertex[2].position = {(float)(x + w / 2), (float)y}; break;
-        case Direction::LEFT:  vertex[0].position = {(float)x, (float)y}; vertex[1].position = {(float)x, (float)(y + h)}; vertex[2].position = {(float)(x + w), (float)(y + h / 2)}; break;
-        case Direction::RIGHT: vertex[0].position = {(float)(x + w), (float)y}; vertex[1].position = {(float)(x + w), (float)(y + h)}; vertex[2].position = {(float)x, (float)(y + h / 2)}; break;
+        case Direction::UP:
+            vertex[0].position = {(float)x, (float)y};
+            vertex[1].position = {(float)(x + w), (float)y};
+            vertex[2].position = {(float)(x + w / 2), (float)(y + h)};
+            break;
+        case Direction::DOWN:
+            vertex[0].position = {(float)x, (float)(y + h)};
+            vertex[1].position = {(float)(x + w), (float)(y + h)};
+            vertex[2].position = {(float)(x + w / 2), (float)y};
+            break;
+        case Direction::LEFT:
+            vertex[0].position = {(float)x, (float)y};
+            vertex[1].position = {(float)x, (float)(y + h)};
+            vertex[2].position = {(float)(x + w), (float)(y + h / 2)};
+            break;
+        case Direction::RIGHT:
+            vertex[0].position = {(float)(x + w), (float)y};
+            vertex[1].position = {(float)(x + w), (float)(y + h)};
+            vertex[2].position = {(float)x, (float)(y + h / 2)};
+            break;
         case Direction::NONE: return;
     }
     SDL_RenderGeometry(renderer, nullptr, vertex, 3, nullptr, 0);
 }
-
-

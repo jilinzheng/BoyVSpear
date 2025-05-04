@@ -4,16 +4,15 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include "assets.h"
-#include <SDL2/SDL_ttf.h> // Include SDL_ttf for text rendering
+#include <SDL2/SDL_ttf.h>   // include SDL_ttf for text rendering
 #include <string>
 #include "menu.h"
-#include <ctime>   // For time()
+#include <ctime>            // for time()
 
 int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer);
 
-namespace spear_runner
-{
-    inline int RETURN_TO_MENU; // Flag to return to menu
+namespace spear_runner {
+    inline int RETURN_TO_MENU; // flag to return to menu
     enum class GameState {
         MENU,
         PLAYING,
@@ -30,9 +29,8 @@ namespace spear_runner
         MEDIUM,
         HARD
     };
-    // --- Function Prototypes ---
-    Settings GetSettingsForDifficulty(Difficulty difficulty);
 
+    Settings GetSettingsForDifficulty(Difficulty difficulty);
     int HandleInput(Player& player, GameState& gameState, int& selectedOption, bool& gameOver, \
                     float& moveX, float& moveY, Settings settings, int& frameCount, std::vector<Spear>& spears);
     void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag);
@@ -40,4 +38,4 @@ namespace spear_runner
     void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const Settings& settings, GameState& gameState, int& frameCount, float moveX, float moveY);
 }
 
-#endif // SPEAR_RUNNER_H
+#endif

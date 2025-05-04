@@ -5,20 +5,19 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 #include "assets.h"
-#include <ctime>   // For time()
-#include <iostream> // For cout
-#include <fstream>  // For ifstream (reading files/FIFOs)
-#include <string>   // For string manipulation
-#include <unistd.h> // For sleep (optional)
-#include <sys/stat.h> // For checking file type (optional but good)
+#include <ctime>        // for time()
+#include <iostream>     // for cout
+#include <fstream>      // for ifstream (reading files/FIFOs)
+#include <string>       // for string manipulation
+#include <unistd.h>     // for sleep (optional)
+#include <sys/stat.h>   // for checking file type (optional but good)
 #include <sys/types.h>
-#include <fcntl.h> // For low-level open (alternative)
-#include <cerrno>   // For errno
-#include <cstdio>  // For perror
+#include <fcntl.h>      // for low-level open (alternative)
+#include <cerrno>       // for errno
+#include <cstdio>       // for perror
 #include <sstream>
 #include <thread>
 #include <mutex>
-
 
 enum CMD {
     LEFT,
@@ -69,16 +68,10 @@ static const int SCREEN_WIDTH = 500;
 static const int SCREEN_HEIGHT = 500;
 static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 
-
 void read_joystick();
-// Function to render text on the screen
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
-// Function to render the main menu
 void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption);
-// Function to render the game over screen
 void RenderGameOver(SDL_Renderer* renderer, TTF_Font* font, int score);
-// Function to render the score
 void RenderScore(SDL_Renderer* renderer, TTF_Font* font, int score);
-
 
 #endif 

@@ -1,14 +1,11 @@
 #include "spear_blocker.h"
 
-
-int SPEAR_COUNTER = 0; // Counter for spears
-const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20; // Keep block zone relative
-
+int SPEAR_COUNTER = 0;                          // counter for spears
+const int BLOCK_ZONE_SIZE = PLAYER_SIZE + 20;   // keep block zone relative
 using namespace spear_blocker;
-// --- Main Function ---
+
 int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
     TTF_Font* font = nullptr;
-
     font = TTF_OpenFont(FONT_PATH, 28);
     if (!font) {
         printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
@@ -19,7 +16,7 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     srand(time(0));
 
-    // Game variables
+    // game variables
     bool running = true;
     GameState gameState = GameState::MENU;
     Difficulty difficulty = Difficulty::MEDIUM;
@@ -29,7 +26,7 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
     int menuSelectedOption = 0;
     bool startGame = false;
 
-    // Initialize Player
+    // initialize player
     Player player;
     player.x = static_cast<float>(SCREEN_WIDTH / 2);
     player.y = static_cast<float>(SCREEN_HEIGHT / 2);
@@ -39,7 +36,7 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
     player.rect.y = static_cast<int>(player.y - player.rect.h / 2.0f);
     player.facing = Direction::UP;
 
-    // Define the central blocking zone
+    // central blocking zone
     SDL_Rect blockZone;
     blockZone.w = BLOCK_ZONE_SIZE;
     blockZone.h = BLOCK_ZONE_SIZE;
@@ -48,15 +45,10 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     std::vector<Spear> spears;
 
-
-    // --- Game Loop ---
+    // game loop
     while (running) {
-
         startGame = false;
-
         HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame);
-   
-
         if (!running) break;
 
         switch (gameState) {
@@ -78,7 +70,6 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
                     blockZone.y = static_cast<int>(player.y - BLOCK_ZONE_SIZE / 2.0f);
                 }
                 break;
-
             case GameState::PLAYING:
                 if (!gameOverFlag) {
                     UpdateGame(player, spears, gameOverFlag, blockZone, currentSettings);
@@ -95,9 +86,7 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
                     }
                 }
                 break;
-
             case GameState::GAME_OVER:
-                // Input handling checks for return to menu
                 break;
         }
 
@@ -107,8 +96,6 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     return 0;
 }
-
-// --- Function Definitions ---
 
 namespace spear_blocker {
     Settings GetSettingsForDifficulty(Difficulty difficulty) {
@@ -147,8 +134,8 @@ namespace spear_blocker {
                     startGame = true;
                 }
             }
-
-        } else if (gameState == GameState::PLAYING) {
+        }
+        else if (gameState == GameState::PLAYING) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
@@ -158,8 +145,8 @@ namespace spear_blocker {
                 if (joy.x == LEFT) player.facing = Direction::LEFT;
                 if (joy.x == RIGHT) player.facing = Direction::RIGHT;
             }
-
-        } else if (gameState == GameState::GAME_OVER) {
+        }
+        else if (gameState == GameState::GAME_OVER) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
@@ -175,7 +162,7 @@ namespace spear_blocker {
 
     void UpdateGame(Player& player, std::vector<Spear>& spears, bool& gameOver, const SDL_Rect& blockZone, const Settings& settings) {
         for (int i = spears.size() - 1; i >= 0; --i) {
-            // Move spear
+            // move spear
             switch (spears[i].originDirection) {
                 case Direction::UP:    spears[i].y += spears[i].speed; break;
                 case Direction::DOWN:  spears[i].y -= spears[i].speed; break;
@@ -186,17 +173,17 @@ namespace spear_blocker {
             spears[i].rect.x = static_cast<int>(spears[i].x);
             spears[i].rect.y = static_cast<int>(spears[i].y);
 
-            // Check collision/block
+            // check collision/block
             if (CheckSpearInBlockZone(spears[i], blockZone)) {
                 if (player.facing == spears[i].originDirection) {
-                    spears.erase(spears.begin() + i); // Blocked
+                    spears.erase(spears.begin() + i);   // blocked
                     SPEAR_COUNTER++;
                 } else {
-                    gameOver = true; // Hit
+                    gameOver = true;                    // hit
                     return;
                 }
             }
-            // Remove off-screen spears
+            // remove off-screen spears
             else if (spears[i].y < -SPEAR_LENGTH * 2 || spears[i].y > SCREEN_HEIGHT + SPEAR_LENGTH ||
                     spears[i].x < -SPEAR_LENGTH * 2 || spears[i].x > SCREEN_WIDTH + SPEAR_LENGTH) {
                 spears.erase(spears.begin() + i);
@@ -248,21 +235,20 @@ namespace spear_blocker {
 
         if (gameState == GameState::MENU) {
             if (font) RenderMenu(renderer, font, selectedOption);
-        } else if (gameState == GameState::PLAYING || gameState == GameState::GAME_OVER) {
+        } 
+        else if (gameState == GameState::PLAYING || gameState == GameState::GAME_OVER) {
             if (renderer) {
                 RenderPlayerCharacter(renderer, player, gameOverFlag, 1);
                 SDL_SetRenderDrawColor(renderer, 0, 180, 255, 255);
                 for (const auto& spear : spears) {
                     RenderSpear(renderer, spear);
                 }
-                RenderScore(renderer, font, SPEAR_COUNTER);  // << Only one simple call now
+                RenderScore(renderer, font, SPEAR_COUNTER);  // only one simple call now
             }
-
             if (gameState == GameState::GAME_OVER) {
                 if (font) RenderGameOver(renderer, font, SPEAR_COUNTER);
             }
         }
-
         SDL_RenderPresent(renderer);
     }
 }

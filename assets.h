@@ -1,12 +1,13 @@
 #ifndef ASSETS_H
 #define ASSETS_H
+
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h> // Include SDL_ttf for text rendering
+#include <SDL2/SDL_ttf.h> // include SDL_ttf for text rendering
 
 static const int PLAYER_SIZE = 40; 
 static const int PLAYER_SPEED = 5;
 
-//for spears
+// for spears
 const int SPEAR_BASE_WIDTH = 5;
 const int SPEAR_LENGTH = 20;
 
@@ -29,4 +30,5 @@ struct Spear {
 
 void RenderPlayerCharacter(SDL_Renderer* renderer, const Player& player, bool isGameOver, int Game_Type);
 void RenderSpear(SDL_Renderer* renderer, const Spear& spear);
-#endif // CHARACTER_H
+
+#endif // ASSETS_H
