@@ -35,8 +35,8 @@ const int LEFT_THRESHOLD = 1000;
 const int RIGHT_THRESHOLD = 3000;
 const int UP_THRESHOLD = 1000;
 const int DOWN_THRESHOLD = 3000;
-// print the send time for 50 sent commands for metrics
-const int MAX_CMD_TO_PRINT = 50;
+// print the send time for 150 sent commands for metrics
+const int MAX_CMD_TO_PRINT = 150;
 
 // variable to store the received Unix time
 time_t received_unix_time = 0;

@@ -27,7 +27,7 @@ joystick_data = {
 fifo_out = None
 fifo_ready = False
 
-MAX_CMD_TO_PRINT = 50
+MAX_CMD_TO_PRINT = 150
 num_cmd_received = 0
 
 
@@ -38,6 +38,7 @@ def notification_handler(characteristic: BleakGATTCharacteristic, data: bytearra
     # print time when command was received
     if num_cmd_received < MAX_CMD_TO_PRINT:
         print(time.time())
+        num_cmd_received += 1
 
     # get the UUID string from the characteristic object
     char_uuid = characteristic.uuid
