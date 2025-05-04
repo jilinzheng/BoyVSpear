@@ -4,8 +4,6 @@
 #include "spear_blocker.h"
 #include "assets.h"
 #include "spear_runner.h"
-#include "assets.h"
-
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
@@ -106,8 +104,7 @@ int main(int argc, char* argv[]) {
         else if (descend_menu) selectedGame = (selectedGame+1)%2;
         else if (enter_game) {
             if (selectedGame==0) {
-                if (SpearBlockerMain(window, renderer)) {
-                    printf("Exiting");
+                if (SpearBlockerMain(window, renderer) == -1) {
                     running = false;
                 }
             }
