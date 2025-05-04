@@ -33,7 +33,7 @@ num_cmd_received = 0
 
 def notification_handler(characteristic: BleakGATTCharacteristic, data: bytearray):
     """Handles incoming BLE notifications, updates state, and writes to FIFO."""
-    global fifo_out, fifo_ready, joystick_data
+    global fifo_out, fifo_ready, joystick_data, num_cmd_received
 
     # print time when command was received
     if num_cmd_received < MAX_CMD_TO_PRINT:
