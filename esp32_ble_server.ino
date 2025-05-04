@@ -2,6 +2,7 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <BLE2902.h>
+#include <TimeLib.h>
 
 // service UUID: identifies overall service provided by ESP32 server
 #define SERVICE_UUID "90920b02-5bb3-4d6d-8322-d744ccf56a04"
@@ -21,7 +22,8 @@ enum CMD {
 };
 
 enum BTN_STATE {
-  PRESSED,  // software pullup resistor, pressing button gives LOW/0
+  // software pullup resistor, pressing button gives LOW/0
+  PRESSED,
   RELEASED
 };
 
@@ -29,11 +31,20 @@ enum BTN_STATE {
 const int JOY_X = A4; 
 const int JOY_Y = A5;
 const int JOY_BTN = 6;
-const int LEFT_THRESHOLD = 1600;
-const int RIGHT_THRESHOLD = 1640;
-const int UP_THRESHOLD = 1620;
-const int DOWN_THRESHOLD = 1660;
+const int LEFT_THRESHOLD = 1000;
+const int RIGHT_THRESHOLD = 3000;
+const int UP_THRESHOLD = 1000;
+const int DOWN_THRESHOLD = 3000;
+// print the send time for 50 sent commands for metrics
+const int MAX_CMD_TO_PRINT = 50;
 
+// variable to store the received Unix time
+time_t received_unix_time = 0;
+// flag to indicate if time has been received and set
+bool time_set = false;
+// track number of commands sent
+int num_cmd_sent = 0;
+// time_t current_time = now(), elapsed_time = current_time - START_EPOCH;
 int x_adc, y_adc;
 int old_x_cmd = NEUTRAL, old_y_cmd = NEUTRAL, old_btn_val = RELEASED;
 int new_x_cmd = NEUTRAL, new_y_cmd = NEUTRAL, new_btn_val = RELEASED;
@@ -69,6 +80,8 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 void setup() {
   Serial.begin(115200);
+  setTime(timeNotSet);
+
   Serial.println("Starting ESP32 BLE Server for Joystick Data...");
   pinMode(JOY_BTN, INPUT_PULLUP);
 
@@ -118,6 +131,29 @@ void setup() {
 }
 
 void loop() {
+  // pass time from serial connection (Python script)
+  while (!time_set) {
+    // read incoming string until newline is received
+    String time_str = Serial.readStringUntil('\n');
+
+    // convert received string to long integer (time_t)
+    char* endptr;
+    received_unix_time = strtol(time_str.c_str(), &endptr, 10);
+
+    // check if conversion was successful and the entire string was consumed
+    if (*endptr == '\0' && received_unix_time > 0) {
+      // set TimeLib clock with the received Unix time
+      setTime(received_unix_time);
+      time_set = true;
+      Serial.print("Received and set time to: ");
+      Serial.println(received_unix_time);
+    }
+    else {
+      Serial.print("Failed to convert received string to time_t: ");
+      Serial.println(time_str);
+    }
+  }
+
   x_adc = analogRead(JOY_X); 
   y_adc = analogRead(JOY_Y);
   new_btn_val = digitalRead(JOY_BTN);
@@ -143,37 +179,52 @@ void loop() {
       // update the last cmd
       old_x_cmd = new_x_cmd;
       switch (new_x_cmd) {
-        case LEFT: Serial.print("x_cmd = left \n"); break;
-        case RIGHT: Serial.print("x_cmd = right \n"); break;
-        default: Serial.print("x_cmd = neutral \n");
+        // case LEFT: Serial.print("x_cmd = left \n"); break;
+        // case RIGHT: Serial.print("x_cmd = right \n"); break;
+        // default: Serial.print("x_cmd = neutral \n");
       }
       sprintf(x_cmd_str, "%d", new_x_cmd);
       pCharacteristicX->setValue(x_cmd_str);
       // notify client
       pCharacteristicX->notify();
+
+      // print time of when command was first sent
+      if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
+        Serial.println(now());
+        ++num_cmd_sent;
+      }
     }
 
     if (y_cmd_changed) {
-      if (y_cmd_changed) {
-        old_y_cmd = new_y_cmd;
-        switch (new_y_cmd) {
-          case UP: Serial.print("y_cmd = up\n"); break;
-          case DOWN: Serial.print("y_cmd = down\n"); break;
-          default: Serial.print("y_cmd = neutral\n");
-        }
-        sprintf(y_cmd_str, "%d", new_y_cmd);
-        pCharacteristicY->setValue(y_cmd_str);
-        pCharacteristicY->notify();
+      old_y_cmd = new_y_cmd;
+      switch (new_y_cmd) {
+        // case UP: Serial.print("y_cmd = up\n"); break;
+        // case DOWN: Serial.print("y_cmd = down\n"); break;
+        // default: Serial.print("y_cmd = neutral\n");
+      }
+      sprintf(y_cmd_str, "%d", new_y_cmd);
+      pCharacteristicY->setValue(y_cmd_str);
+      pCharacteristicY->notify();
+
+      // print time of when command was first sent
+      if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
+        Serial.println(now());
+        ++num_cmd_sent;
       }
     }
 
     if (btn_val_changed) {
       old_btn_val = new_btn_val;
-      if (!new_btn_val) Serial.print("btn_val = pressed\n");
-      else Serial.print("btn_val = released\n");
+      // if (!new_btn_val) Serial.print("btn_val = pressed\n");
       sprintf(btn_val_str, "%d", new_btn_val);
       pCharacteristicBtn->setValue(btn_val_str);
       pCharacteristicBtn->notify();
+
+      // print time of when command was first sent
+      if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
+        Serial.println(now());
+        ++num_cmd_sent;
+      }
     }
   }
 

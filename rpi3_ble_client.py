@@ -2,6 +2,7 @@ import asyncio
 import sys
 import os
 import stat
+import time
 from bleak import BleakScanner, BleakClient
 from bleak.backends.characteristic import BleakGATTCharacteristic
 
@@ -16,7 +17,6 @@ CHARACTERISTIC_UUID_BTN = "0bc7ad76-3ffd-4da4-8e3e-09613eddf3c4"
 # path of fifo to write to
 FIFO_PATH = "/tmp/joystick_fifo"
 
-
 # global dictionary to store the latest values
 # initialized with NEUTRAL/RELEASED defaults
 joystick_data = {
@@ -24,14 +24,20 @@ joystick_data = {
     "Y": 4,
     "Button": 1,
 }
-
 fifo_out = None
 fifo_ready = False
+
+MAX_CMD_TO_PRINT = 50
+num_cmd_received = 0
 
 
 def notification_handler(characteristic: BleakGATTCharacteristic, data: bytearray):
     """Handles incoming BLE notifications, updates state, and writes to FIFO."""
     global fifo_out, fifo_ready, joystick_data
+
+    # print time when command was received
+    if num_cmd_received < MAX_CMD_TO_PRINT:
+        print(time.time())
 
     # get the UUID string from the characteristic object
     char_uuid = characteristic.uuid
