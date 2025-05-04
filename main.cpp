@@ -26,32 +26,8 @@ int main(int argc, char* argv[]) {
     // joystick thread
     std::thread joystick_thread;
 
-    // variables for FPS calculation
-    Uint64 lastTick = SDL_GetPerformanceCounter();
-    Uint64 currentTick;
-    double deltaTime = 0;
-    int frameCount = 0;
-    double fpsTimer = 0;
-    int fps = 0;
-
     while (running) {
-        // calculate delta time
-        currentTick = SDL_GetPerformanceCounter();
-        deltaTime = (double)(currentTick - lastTick) / SDL_GetPerformanceFrequency();
-        lastTick = currentTick;
-
-        // FPS calculation
-        frameCount++;
-        fpsTimer += deltaTime;
-
-        if (fpsTimer >= 1.0) {
-            fps = round((double)frameCount / fpsTimer);
-            std::cout << "FPS: " << fps << "\n";
-
-            // reset timers and frame count
-            fpsTimer = 0;
-            frameCount = 0;
-        }
+        printFPS();
 
         // check if stream is open, if not, try to open it
         if (!fifo_stream.is_open()) {

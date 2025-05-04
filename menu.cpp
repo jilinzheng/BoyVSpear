@@ -10,6 +10,33 @@ Joystick joy, old_joy = {-1,-1,-1};
 bool joy_action = false;    // flag for others accessing to use the input
                             // otherwise don't update using joy to prevent "infinite" loop
 std::mutex joy_mutex;
+// variables for FPS calculation
+Uint64 lastTick = SDL_GetPerformanceCounter();
+Uint64 currentTick;
+double deltaTime = 0;
+int frameCount = 0;
+double fpsTimer = 0;
+int fps = 0;
+
+void printFPS() {
+    // calculate delta time
+    currentTick = SDL_GetPerformanceCounter();
+    deltaTime = (double)(currentTick - lastTick) / SDL_GetPerformanceFrequency();
+    lastTick = currentTick;
+
+    // FPS calculation
+    frameCount++;
+    fpsTimer += deltaTime;
+
+    if (fpsTimer >= 1.0) {
+        fps = round((double)frameCount / fpsTimer);
+        std::cout << "FPS: " << fps << "\n";
+
+        // reset timers and frame count
+        fpsTimer = 0;
+        frameCount = 0;
+    }
+}
 
 // read line by line from the FIFO stream
 void read_joystick() {
@@ -26,7 +53,6 @@ void read_joystick() {
                 if (new_joy != old_joy) joy_action = true;
                 joy = new_joy;
                 old_joy = new_joy;
-                // std::cout << "joy_action = true" << "\n";
             } else {
                 std::cerr << "Warning: Could not parse line: " << line << "\n";
             }
@@ -49,7 +75,6 @@ void read_joystick() {
         }
     }
 }
-
 
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color) {
     if (!font) return;

@@ -47,6 +47,8 @@ int SpearBlockerMain(SDL_Window* window, SDL_Renderer* renderer) {
 
     // game loop
     while (running) {
+        printFPS();
+
         startGame = false;
         HandleInput(running, player, gameState, menuSelectedOption, difficulty, startGame);
         if (!running) break;
@@ -123,7 +125,6 @@ namespace spear_blocker {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
-                std::cout << "joy_action = false" << "\n";
                 if (joy.y == UP) selectedOption = (selectedOption-1+4)%4;
                 if (joy.y == DOWN) selectedOption = (selectedOption+1)%4;
                 if (joy.btn == PRESSED) {
@@ -139,7 +140,6 @@ namespace spear_blocker {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
-                std::cout << "joy_action = false" << "\n";
                 if (joy.y == UP) player.facing = Direction::UP;
                 if (joy.y == DOWN) player.facing = Direction::DOWN;
                 if (joy.x == LEFT) player.facing = Direction::LEFT;
@@ -150,7 +150,6 @@ namespace spear_blocker {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
                 joy_action = false;
-                std::cout << "joy_action = false" << "\n";
                 if (joy.btn==PRESSED) {
                     gameState = GameState::MENU;
                     selectedOption = 0;

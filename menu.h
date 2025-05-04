@@ -67,6 +67,7 @@ extern Joystick joy;
 extern bool joy_action;
 extern std::mutex joy_mutex;
 
+void printFPS();
 void read_joystick();
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
 void RenderMenu(SDL_Renderer* renderer, TTF_Font* font, int selectedOption);

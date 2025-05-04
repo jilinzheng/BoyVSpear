@@ -37,6 +37,8 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
     std::vector<Spear> spears;
 
     while (true) {
+        printFPS();
+
         float moveX = 0, moveY = 0;
 
         if (HandleInput(player, gameState, selectedOption, gameOver, moveX, moveY, settings, frameCount, spears) == -1) {
@@ -62,12 +64,10 @@ int SpearRunnerMain(SDL_Window* window, SDL_Renderer* renderer) {
         }
         RenderGame(renderer, font, player, spears, gameState, selectedOption, gameOver);
     }
-
     return 0;
 }
 
-namespace spear_runner
-{ 
+namespace spear_runner {
     Settings GetSettingsForDifficulty(Difficulty difficulty) {
         Settings settings;
         switch (difficulty) {
@@ -106,7 +106,6 @@ namespace spear_runner
                 }
             }
         }
-
         else if (gameState == GameState::GAME_OVER) {
             std::lock_guard<std::mutex> lock(joy_mutex);
             if (joy_action) {
@@ -122,11 +121,11 @@ namespace spear_runner
             if (joy.x == LEFT) moveX = -PLAYER_SPEED;
             if (joy.x == RIGHT) moveX = PLAYER_SPEED;
         }
+
         return 0;
     }
 
-    void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag)
-    {
+    void RenderGame(SDL_Renderer* renderer, TTF_Font* font, const Player& player, const std::vector<Spear>& spears, GameState gameState, int selectedOption, bool gameOverFlag) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
