@@ -1,5 +1,8 @@
 #include "menu.h"
 
+const int SCREEN_WIDTH = 500;
+const int SCREEN_HEIGHT = 500;
+const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 const char* FIFO_PATH = "/tmp/joystick_fifo";
 std::ifstream fifo_stream;
 std::string line;

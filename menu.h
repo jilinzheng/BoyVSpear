@@ -56,6 +56,9 @@ struct Joystick {
     }
 };
 
+extern const int SCREEN_WIDTH;
+extern const int SCREEN_HEIGHT;
+extern const char* FONT_PATH;
 // FIFO to read BLE values written by Python BLE client
 extern const char* FIFO_PATH;
 extern std::ifstream fifo_stream;
@@ -63,10 +66,6 @@ extern std::string line;
 extern Joystick joy;
 extern bool joy_action;
 extern std::mutex joy_mutex;
-
-static const int SCREEN_WIDTH = 500;
-static const int SCREEN_HEIGHT = 500;
-static const char* FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 
 void read_joystick();
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color);
