@@ -13,17 +13,17 @@ void read_joystick() {
     while (true) {
         if (std::getline(fifo_stream, line)) {
             // process the received line (X Y Button)
-            std::cout << "Received: " << line << std::endl;
+            // std::cout << "Received: " << line << std::endl;
 
             std::stringstream ss(line);
             Joystick new_joy;
             if (ss >> new_joy.x >> new_joy.y >> new_joy.btn) {
                 std::lock_guard<std::mutex> lock(joy_mutex);
-                std::cout << "Parsed -> X: " << new_joy.x << ", Y: " << new_joy.y << ", Btn: " << new_joy.btn <<"\n";
+                // std::cout << "Parsed -> X: " << new_joy.x << ", Y: " << new_joy.y << ", Btn: " << new_joy.btn <<"\n";
                 if (new_joy != old_joy) joy_action = true;
                 joy = new_joy;
                 old_joy = new_joy;
-                std::cout << "joy_action = true" << "\n";
+                // std::cout << "joy_action = true" << "\n";
             } else {
                 std::cerr << "Warning: Could not parse line: " << line << "\n";
             }
