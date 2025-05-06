@@ -131,28 +131,34 @@ void setup() {
 }
 
 void loop() {
-  // pass time from serial connection (Python script)
-  while (!time_set) {
-    // read incoming string until newline is received
-    String time_str = Serial.readStringUntil('\n');
+  // pass time from serial connection (Python script) for timing latencies
+  // while (!time_set) {
+  //   // read incoming string until newline is received
+  //   String time_str = Serial.readStringUntil('\n');
 
-    // convert received string to long integer (time_t)
-    char* endptr;
-    received_unix_time = strtol(time_str.c_str(), &endptr, 10);
+  //   // convert received string to long integer (time_t)
+  //   char* endptr;
+  //   received_unix_time = strtol(time_str.c_str(), &endptr, 10);
 
-    // check if conversion was successful and the entire string was consumed
-    if (*endptr == '\0' && received_unix_time > 0) {
-      // set TimeLib clock with the received Unix time
-      setTime(received_unix_time);
-      time_set = true;
-      Serial.print("Received and set time to: ");
-      Serial.println(received_unix_time);
-    }
-    else {
-      Serial.print("Failed to convert received string to time_t: ");
-      Serial.println(time_str);
-    }
-  }
+  //   // check if conversion was successful and the entire string was consumed
+  //   if (*endptr == '\0' && received_unix_time > 0) {
+  //     // set TimeLib clock with the received Unix time
+  //     setTime(received_unix_time);
+  //     time_set = true;
+  //     Serial.print("Received and set time to: ");
+  //     Serial.println(received_unix_time);
+  //   }
+  //   else {
+  //     Serial.print("Failed to convert received string to time_t: ");
+  //     Serial.println(time_str);
+  //   }
+  // }
+
+  // temperature
+  // int temp = temperatureRead(); // Get temperature reading
+  Serial.print("Temperature: ");
+  Serial.print(temperatureRead());
+  Serial.println(" °C");
 
   x_adc = analogRead(JOY_X); 
   y_adc = analogRead(JOY_Y);
@@ -189,10 +195,10 @@ void loop() {
       pCharacteristicX->notify();
 
       // print time of when command was first sent
-      if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
-        Serial.println(now());
-        ++num_cmd_sent;
-      }
+      // if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
+      //   Serial.println(now());
+      //   ++num_cmd_sent;
+      // }
     }
 
     if (y_cmd_changed) {
@@ -207,10 +213,10 @@ void loop() {
       pCharacteristicY->notify();
 
       // print time of when command was first sent
-      if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
-        Serial.println(now());
-        ++num_cmd_sent;
-      }
+      // if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
+      //   Serial.println(now());
+      //   ++num_cmd_sent;
+      // }
     }
 
     if (btn_val_changed) {
@@ -221,10 +227,10 @@ void loop() {
       pCharacteristicBtn->notify();
 
       // print time of when command was first sent
-      if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
-        Serial.println(now());
-        ++num_cmd_sent;
-      }
+      // if (time_set && num_cmd_sent < MAX_CMD_TO_PRINT) {
+      //   Serial.println(now());
+      //   ++num_cmd_sent;
+      // }
     }
   }
 
